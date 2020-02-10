@@ -38,13 +38,6 @@ app.post('/start', (request, response) => {
 
 // Handle POST request to '/move'
 app.post('/move', (request, response) => {
-  // NOTE: Do something here to generate your move
-
-  // Response data
-  const data = {
-    move: 'left' // one of: ['up','down','left','right']
-  }
-
   const easystar = new easystarjs.js();
 
   // Draw board array
@@ -52,11 +45,8 @@ app.post('/move', (request, response) => {
     () => Array(request.body.board.width).fill(0));
 
   // find food coords and draw on board
+  nextMoveToFood = [];
   const food = request.body.board.food[0];
-
-  // food.forEach(element => {
-  //   board[element.y][element.x] = 2;
-  // });
 
   // find coords for my snake's head
   const mySnakeHead = request.body.you.body[0];
@@ -78,18 +68,27 @@ app.post('/move', (request, response) => {
     if (path === null) {
       console.log("The path to the destination point was not found.");
     } else {
-
-      for (var i = 0; i < path.length; i++) {
-        console.log("P: " + i + ", X: " + path[i].x + ",Y: " + path[i].y);
-      }
-
+      // Set to 1 as 0 is current position of snakehead
+      nextMoveToFood = path[1];
     }
   });
 
   easystar.calculate();
 
-  console.log(JSON.stringify(request.body));
+  const data = {
+    move: 'left' // one of: ['up','down','left','right']
+  }
 
+  if (mySnakeHead.x > nextMoveToFood.x)
+    data.move = 'left';
+  else if (mySnakeHead.x < nextMoveToFood.x)
+    data.move = 'right';
+  else if (mySnakeHead.y > nextMoveToFood.y)
+    data.move = 'down';
+  else if (mySnakeHead.y < nextMoveToFood.y)
+    data.move = 'up';
+
+  console.log(JSON.stringify(request.body));
 
   return response.json(data);
 })
