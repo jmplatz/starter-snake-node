@@ -45,43 +45,48 @@ app.post('/move', (request, response) => {
     move: 'left' // one of: ['up','down','left','right']
   }
 
+  const easystar = new easystarjs.js();
+
   // Draw board array
   let board = Array(request.body.board.height).fill().map(
     () => Array(request.body.board.width).fill(0));
 
   // find food coords and draw on board
   const food = request.body.board.food[0];
-  // food.forEach(element => {
-  //   board[element.y][element.x] = 2;
-  // });
+  food.forEach(element => {
+    board[element.y][element.x] = 2;
+  });
 
   // find coords for my snake's head
   const mySnakeHead = request.body.you.body[0];
 
   //find length and coords of my snake's body
-  const mySnakeBody = request.body.you.body.slice(1);
+  const mySnakeBody = request.body.you.body;
 
   // draw my snake's body on board
   mySnakeBody.forEach(element => {
     board[element.y][element.x] = 1;
   });
 
-  const easystar = new easystarjs.js();
+  console.table(board);
 
   easystar.setGrid(board);
   easystar.setAcceptableTiles([0]);
 
   easystar.findPath(mySnakeHead.x, mySnakeHead.y, food.x, food.y, function (path) {
     if (path === null) {
-      console.log("Path was not found.");
+      console.log("The path to the destination point was not found.");
     } else {
-      console.log("Path was found. The first Point is " + path[0].x + " " + path[0].y);
+
+      for (var i = 0; i < path.length; i++) {
+        console.log("P: " + i + ", X: " + path[i].x + ",Y: " + path[i].y);
+      }
+
     }
   });
 
   easystar.calculate();
 
-  console.table(board);
   console.log(JSON.stringify(request.body));
 
 
