@@ -57,15 +57,15 @@ app.post('/move', (request, response) => {
   // // find coords for my snake's head
   // // const mySnakeHead = request.body.you.body[0];
 
-  // //find length and coords of my snake's body
-  // const mySnakeBody = request.body.you.body.slice(1);
+  //find length and coords of my snake's body
+  const mySnakeBody = request.body.you.body.slice(1);
 
-  // // draw my snake's body on board
-  // mySnakeBody.forEach(element => {
-  //   board[element.y][element.x] = 1;
-  // });
+  // draw my snake's body on board
+  mySnakeBody.forEach(element => {
+    board[element.y][element.x] = 1;
+  });
 
-  console.log(JSON.stringify(board));
+  console.table(JSON.stringify(board));
   console.log(JSON.stringify(request.body));
 
   return response.json(data);
