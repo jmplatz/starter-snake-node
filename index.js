@@ -53,15 +53,16 @@ app.post('/move', (request, response) => {
 
   // find food coords and draw on board
   const food = request.body.board.food[0];
-  food.forEach(element => {
-    board[element.y][element.x] = 2;
-  });
+
+  // food.forEach(element => {
+  //   board[element.y][element.x] = 2;
+  // });
 
   // find coords for my snake's head
   const mySnakeHead = request.body.you.body[0];
 
   //find length and coords of my snake's body
-  const mySnakeBody = request.body.you.body;
+  const mySnakeBody = request.body.you.body.splice(1);
 
   // draw my snake's body on board
   mySnakeBody.forEach(element => {
