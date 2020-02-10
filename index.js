@@ -49,10 +49,10 @@ app.post('/move', (request, response) => {
     () => Array(request.body.board.width).fill(0));
 
   // find food coords and draw on board
-  // const food = request.body.board.food[0];
-  // food.forEach(element => {
-  //   board[element.y][element.x] = 2;
-  // });
+  const food = request.body.board.food[0];
+  food.forEach(element => {
+    board[element.y][element.x] = 2;
+  });
 
   // // find coords for my snake's head
   // // const mySnakeHead = request.body.you.body[0];
