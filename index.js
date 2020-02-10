@@ -1,6 +1,7 @@
 const bodyParser = require('body-parser')
 const express = require('express')
 const logger = require('morgan')
+const easystarjs = require('easystarjs')
 const app = express()
 const {
   fallbackHandler,
@@ -49,13 +50,13 @@ app.post('/move', (request, response) => {
     () => Array(request.body.board.width).fill(0));
 
   // find food coords and draw on board
-  const food = request.body.board.food;
-  food.forEach(element => {
-    board[element.y][element.x] = 2;
-  });
+  const food = request.body.board.food[0];
+  // food.forEach(element => {
+  //   board[element.y][element.x] = 2;
+  // });
 
-  // // find coords for my snake's head
-  // // const mySnakeHead = request.body.you.body[0];
+  // find coords for my snake's head
+  const mySnakeHead = request.body.you.body[0];
 
   //find length and coords of my snake's body
   const mySnakeBody = request.body.you.body.slice(1);
@@ -65,8 +66,24 @@ app.post('/move', (request, response) => {
     board[element.y][element.x] = 1;
   });
 
+  const easystar = new easystarjs.js();
+
+  easystar.setGrid(board);
+  easystar.setAcceptableTiles([0]);
+
+  easystar.findPath(mySnakeHead.x, mySnakeHead.y, food.x, food.y, function (path) {
+    if (path === null) {
+      console.log("Path was not found.");
+    } else {
+      console.log("Path was found. The first Point is " + path[0].x + " " + path[0].y);
+    }
+  });
+
+  easystar.calculate();
+
   console.table(board);
   console.log(JSON.stringify(request.body));
+
 
   return response.json(data);
 })
