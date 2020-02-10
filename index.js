@@ -41,31 +41,32 @@ app.post('/move', (request, response) => {
 
   // Response data
   const data = {
-    move: 'right', // one of: ['up','down','left','right']
+    move: 'left' // one of: ['up','down','left','right']
   }
 
   // Draw board array
-  let board = new Array(request.body.board.height).fill().map(
-    () => new Array(request.body.board.width).fill(0));
+  let board = Array(request.body.board.height).fill().map(
+    () => Array(request.body.board.width).fill(0));
 
   // find food coords and draw on board
-  const food = request.body.board.food[0];
-  food.forEach(element => {
-    board[element.y][element.x] = 2;
-  });
+  // const food = request.body.board.food[0];
+  // food.forEach(element => {
+  //   board[element.y][element.x] = 2;
+  // });
 
-  // find coords for my snake's head
-  // const mySnakeHead = request.body.you.body[0];
+  // // find coords for my snake's head
+  // // const mySnakeHead = request.body.you.body[0];
 
-  //find length and coords of my snake's body
-  const mySnakeBody = request.body.you.body.slice(1);
+  // //find length and coords of my snake's body
+  // const mySnakeBody = request.body.you.body.slice(1);
 
-  // draw my snake's body on board
-  mySnakeBody.forEach(element => {
-    board[element.y][element.x] = 1;
-  });
+  // // draw my snake's body on board
+  // mySnakeBody.forEach(element => {
+  //   board[element.y][element.x] = 1;
+  // });
 
-  console.table(board);
+  console.log(JSON.stringify(board));
+  console.log(JSON.stringify(request.body));
 
   return response.json(data);
 })
@@ -77,7 +78,7 @@ app.post('/end', (request, response) => {
 
 app.post('/ping', (request, response) => {
   // Used for checking if this snake is still alive.
-  return response.json({});
+  return response.json({})
 })
 
 // --- SNAKE LOGIC GOES ABOVE THIS LINE ---
