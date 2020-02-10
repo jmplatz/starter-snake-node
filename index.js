@@ -1,23 +1,23 @@
-const bodyParser = require('body-parser')
-const express = require('express')
-const logger = require('morgan')
-const app = express()
-const {
+import json from 'body-parser';
+import express from 'express';
+import logger from 'morgan';
+const app = express();
+import {
   fallbackHandler,
   notFoundHandler,
   genericErrorHandler,
   poweredByHandler
-} = require('./handlers.js')
+} from './handlers.js';
 
 // For deployment to Heroku, the port needs to be set using ENV, so
 // we check for the port number in process.env
-app.set('port', (process.env.PORT || 9001))
+app.set('port', (process.env.PORT || 9001));
 
-app.enable('verbose errors')
+app.enable('verbose errors');
 
-app.use(logger('dev'))
-app.use(bodyParser.json())
-app.use(poweredByHandler)
+app.use(logger('dev'));
+app.use(json());
+app.use(poweredByHandler);
 
 // --- SNAKE LOGIC GOES BELOW THIS LINE ---
 
@@ -27,13 +27,13 @@ app.post('/start', (request, response) => {
 
   // Response data
   const data = {
-      "color": "#ff00ff",
-      "headType": "bendr",
-      "tailType": "pixel",
-  }
+    "color": "#ff00ff",
+    "headType": "bendr",
+    "tailType": "pixel",
+  };
 
-  return response.json(data)
-})
+  return response.json(data);
+});
 
 // Handle POST request to '/move'
 app.post('/move', (request, response) => {
@@ -42,29 +42,52 @@ app.post('/move', (request, response) => {
   // Response data
   const data = {
     move: 'right', // one of: ['up','down','left','right']
-  }
+  };
 
-  console.log(JSON.stringify(request.body));
+  const game = request.body;
 
-  return response.json(data)
-})
+  // Draw board array
+  let board = new Array(game.board.height).fill().map(() => new Array(game.board.width).fill(0));
+
+  // find food coords and draw on board
+  const food = game.board.food[0];
+  food.forEach(element => {
+    board[element.y][element.x] = 2;
+  });
+
+  // find coords for my snake's head
+  const mySnakeHead = game.you.body[0];
+
+  //find length and coords of my snake's body
+  const mySnakeBody = game.you.body.slice(1);
+
+  // draw my snake's body on board
+  mySnakeBody.forEach(element => {
+    board[element.y][element.x] = 1;
+  });
+
+
+  console.table(board);
+
+  return response.json(data);
+});
 
 app.post('/end', (request, response) => {
   // NOTE: Any cleanup when a game is complete.
-  return response.json({})
-})
+  return response.json({});
+});
 
 app.post('/ping', (request, response) => {
   // Used for checking if this snake is still alive.
   return response.json({});
-})
+});
 
 // --- SNAKE LOGIC GOES ABOVE THIS LINE ---
 
-app.use('*', fallbackHandler)
-app.use(notFoundHandler)
-app.use(genericErrorHandler)
+app.use('*', fallbackHandler);
+app.use(notFoundHandler);
+app.use(genericErrorHandler);
 
 app.listen(app.get('port'), () => {
-  console.log('Server listening on port %s', app.get('port'))
-})
+  console.log('Server listening on port %s', app.get('port'));
+});
