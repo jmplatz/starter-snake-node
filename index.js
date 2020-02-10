@@ -84,9 +84,9 @@ app.post('/move', (request, response) => {
     data.move = 'left';
   } else if (mySnakeHead.x < nextMoveToFood[1].x) {
     data.move = 'right';
-  } else if (mySnakeHead.y > nextMoveToFood[1].y) {
-    data.move = 'down';
   } else if (mySnakeHead.y < nextMoveToFood[1].y) {
+    data.move = 'down';
+  } else if (mySnakeHead.y > nextMoveToFood[1].y) {
     data.move = 'up';
   }
   console.log("I moved " + data.move + " on turn " + request.body.turn);
