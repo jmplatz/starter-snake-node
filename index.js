@@ -65,7 +65,7 @@ app.post('/move', (request, response) => {
     board[element.y][element.x] = 1;
   });
 
-  console.table(JSON.stringify(board));
+  console.table(board);
   console.log(JSON.stringify(request.body));
 
   return response.json(data);
