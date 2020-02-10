@@ -44,7 +44,7 @@ app.post('/move', (request, response) => {
   let board = Array(request.body.board.height).fill().map(
     () => Array(request.body.board.width).fill(0));
 
-  // find food coords and draw on board
+  // find food coords and place on board
   nextMoveToFood = [];
   const food = request.body.board.food[0];
 
@@ -54,8 +54,15 @@ app.post('/move', (request, response) => {
   // find length and coords of my snake's body
   const mySnakeBody = request.body.you.body.splice(1);
 
-  // draw my snake's body on board
+  // place my snake's body on board
   mySnakeBody.forEach(element => {
+    board[element.y][element.x] = 1;
+  });
+
+  // place enemy snakes on board
+  const enemySnakes = request.body.board.snakes;
+
+  enemySnakes.array.forEach(element => {
     board[element.y][element.x] = 1;
   });
 
