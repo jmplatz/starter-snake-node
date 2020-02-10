@@ -70,6 +70,7 @@ app.post('/move', (request, response) => {
       console.log("The path to the destination point was not found.");
     } else {
       nextMoveToFood = path;
+      console.log("First move should be: " + path[1].x + " " + path[1].y);
     }
   });
 
@@ -79,15 +80,16 @@ app.post('/move', (request, response) => {
     move: 'left' // one of: ['up','down','left','right']
   }
 
-  if (mySnakeHead.x > nextMoveToFood[1].x)
+  if (mySnakeHead.x > nextMoveToFood[1].x) {
     data.move = 'left';
-  else if (mySnakeHead.x < nextMoveToFood[1].x)
+  } else if (mySnakeHead.x < nextMoveToFood[1].x) {
     data.move = 'right';
-  else if (mySnakeHead.y > nextMoveToFood[1].y)
+  } else if (mySnakeHead.y > nextMoveToFood[1].y) {
     data.move = 'down';
-  else if (mySnakeHead.y < nextMoveToFood[1].y)
+  } else if (mySnakeHead.y < nextMoveToFood[1].y) {
     data.move = 'up';
-
+  }
+  console.log("I moved " + data.move + " on turn " + request.body.turn);
   return response.json(data);
 })
 
