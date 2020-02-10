@@ -60,7 +60,7 @@ app.post('/move', (request, response) => {
   });
 
   // place enemy snakes on board
-  const enemySnakes = request.body.board.snakes;
+  const enemySnakes = request.body.board.snakes.body;
 
   enemySnakes.forEach(element => {
     board[element.y][element.x] = 1;
