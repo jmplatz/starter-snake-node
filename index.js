@@ -64,9 +64,15 @@ app.post('/move', (request, response) => {
 
   let foodArray = [];
   let foodTest = request.body.board.food;
+  let leastMovesRequired = 0;
   for (let i = 0; i < foodTest.length; i++) {
     let moveDistance = Math.abs(mySnakeHead.x - foodTest[i].x) + Math.abs(mySnakeHead.y - foodTest[i].y);
     foodArray[i] = moveDistance;
+
+    if (moveDistance < leastMovesRequired) {
+      leastMovesRequired = moveDistance;
+      console.log(`${i} is the closest food this turn.`);
+    }
     console.log(`Here is the ${i} piece of food at Y: ${foodTest[i].y} and X: ${foodTest[i].x}`);
   }
   console.table(foodArray);
