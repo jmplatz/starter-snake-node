@@ -51,11 +51,6 @@ app.post('/move', (request, response) => {
   If path can't be found for closest, iterate through other options
   */
 
-  // finds first food object
-  const food = request.body.board.food[0];
-  // will hold move towards food
-  let nextMoveToFood = [];
-
   // coords for my snake's head
   const mySnakeHead = request.body.you.body[0];
 
@@ -77,13 +72,18 @@ app.post('/move', (request, response) => {
 
   let foodArray = [];
   const foodLocations = request.body.board.food;
+
   for (let i = 0; i < foodLocations.length; i++) {
     let moveDistance = Math.abs(mySnakeHead.x - foodLocations[i].x) + Math.abs(mySnakeHead.y - foodLocations[i].y);
     foodArray.push(moveDistance);
   }
-
+  // Finds index of shortest distance and passes to food
   let indexOfMinValue = foodArray.indexOf(Math.min(...foodArray));
-  console.log("This is the closest food: " + indexOfMinValue);
+
+  // finds first food object
+  const food = request.body.board.food[indexOfMinValue];
+  // will hold move towards food
+  let nextMoveToFood = [];
   foodArray = [];
 
   // place my snake's body on board
