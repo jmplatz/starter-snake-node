@@ -65,10 +65,11 @@ app.post('/move', (request, response) => {
   let foodArray = [];
   let foodTest = request.body.board.food;
   for (let i = 0; i < foodTest.length; i++) {
-    foodArray.push(abs(mySnakeHead.x - foodTest[i].x) + abs(mySnakeHead.y - foodTest[i].y));
-    console.log(foodArray);
+    let moveDistance = abs(mySnakeHead.x - foodTest[i].x) + abs(mySnakeHead.y - foodTest[i].y);
+    foodArray.push(moveDistance);
     console.log(`Here is the ${i} piece of food at Y: ${foodTest[i].y} and X: ${foodTest[i].x}`);
   }
+  console.table(foodArray);
   foodArray = [];
   // foodTest.forEach(element => {
   //   console.log(abs(mySnakeHead.x - element.x) + abs(mySnakeHead.y - element.y));
