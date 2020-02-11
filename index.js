@@ -82,8 +82,10 @@ app.post('/move', (request, response) => {
 
   const opponentSnakes = request.body.board.snakes;
 
-  opponentSnakes.forEach(body => {
-    board[body.y][body.x] = 1;
+  opponentSnakes.forEach(snakes => {
+    snakes.body.forEach(element => {
+      board[element.y][element.x] = 1;
+    });
   });
 
   console.table(board);
