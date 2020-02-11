@@ -44,32 +44,21 @@ app.post('/move', (request, response) => {
   let board = Array(request.body.board.height).fill().map(
     () => Array(request.body.board.width).fill(0));
 
+  // coords for my snake's head
+  const mySnakeHead = request.body.you.body[0];
+  // coords of my snake's body
+  const mySnakeBody = request.body.you.body.splice(1);
+  // place my snake's body on board
+  mySnakeBody.forEach(element => {
+    board[element.y][element.x] = 1;
+  });
+
   /*
   TODO: create a function that finds the closest food 
   to snakehead and passes that to easystar each round.
   
   If path can't be found for closest, iterate through other options
   */
-
-  // coords for my snake's head
-  const mySnakeHead = request.body.you.body[0];
-
-  // coords of my snake's body
-  const mySnakeBody = request.body.you.body.splice(1);
-
-  // let foodArray = [];
-  // let foodLocations = request.body.board.food;
-  // let leastMovesRequired = 100;
-  // let moveDistance;
-  // for (let i = 0; i < foodLocations.length; i++) {
-  //   moveDistance = Math.abs(mySnakeHead.x - foodLocations[i].x) + Math.abs(mySnakeHead.y - foodLocations[i].y);
-  //   foodArray[i] = moveDistance;
-
-  //   if (moveDistance < leastMovesRequired) {
-  //     leastMovesRequired = moveDistance;
-  //   }
-  // }
-
   let foodArray = [];
   const foodLocations = request.body.board.food;
 
@@ -86,15 +75,16 @@ app.post('/move', (request, response) => {
   let nextMoveToFood = [];
   foodArray = [];
 
-  // place my snake's body on board
-  mySnakeBody.forEach(element => {
-    board[element.y][element.x] = 1;
-  });
-
   /* 
   TODO: Add opponent snakes to the board, consider their next move
   Maybe create artificially larger head for opponent snakes??
   */
+
+  const opponentSnakes = request.body.board.snakes;
+
+  opponentSnakes.forEach(body => {
+    board[body.y][body.x] = 1;
+  });
 
   console.table(board);
 
