@@ -62,8 +62,10 @@ app.post('/move', (request, response) => {
   // coords of my snake's body
   const mySnakeBody = request.body.you.body.splice(1);
 
-  // let closestFood = [];
-  // let foodTest = request.body.board.food;
+  let foodTest = request.body.board.food;
+  for (let i = 0; i < foodTest.length; i++) {
+    console.log(`Here is the ${i} piece of food at Y: ${foodTest[i].y} and X: ${foodTest[i].x}`);
+  }
   // foodTest.forEach(element => {
   //   console.log(abs(mySnakeHead.x - element.x) + abs(mySnakeHead.y - element.y));
   // });
