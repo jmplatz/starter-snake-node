@@ -1,24 +1,24 @@
-const bodyParser = require('body-parser')
-const express = require('express')
-const logger = require('morgan')
-const easystarjs = require('easystarjs')
-const app = express()
+const bodyParser = require('body-parser');
+const express = require('express');
+const logger = require('morgan');
+const easystarjs = require('easystarjs');
+const app = express();
 const {
   fallbackHandler,
   notFoundHandler,
   genericErrorHandler,
   poweredByHandler
-} = require('./handlers.js')
+} = require('./handlers.js');
 
 // For deployment to Heroku, the port needs to be set using ENV, so
 // we check for the port number in process.env
-app.set('port', (process.env.PORT || 9001))
+app.set('port', (process.env.PORT || 9001));
 
-app.enable('verbose errors')
+app.enable('verbose errors');
 
-app.use(logger('dev'))
-app.use(bodyParser.json())
-app.use(poweredByHandler)
+app.use(logger('dev'));
+app.use(bodyParser.json());
+app.use(poweredByHandler);
 
 // --- SNAKE LOGIC GOES BELOW THIS LINE ---
 
@@ -31,27 +31,35 @@ app.post('/start', (request, response) => {
     "color": "#ff00ff",
     "headType": "bendr",
     "tailType": "pixel",
-  }
+  };
 
-  return response.json(data)
-})
+  return response.json(data);
+});
 
 // Handle POST request to '/move'
 app.post('/move', (request, response) => {
   const easystar = new easystarjs.js();
 
-  // Draw board array
+  // Draw board 2darray
   let board = Array(request.body.board.height).fill().map(
     () => Array(request.body.board.width).fill(0));
 
-  // find food coords and draw on board
-  nextMoveToFood = [];
-  const food = request.body.board.food[0];
+  /*
+  TODO: create a function that finds the closest food 
+  to snakehead and passes that to easystar each round.
+  
+  If path can't be found for closest, iterate through other options
+  */
 
-  // find coords for my snake's head
+  // finds first food object
+  const food = request.body.board.food[0];
+  // will hold move towards food
+  let nextMoveToFood = [];
+
+  // coords for my snake's head
   const mySnakeHead = request.body.you.body[0];
 
-  // find length and coords of my snake's body
+  // coords of my snake's body
   const mySnakeBody = request.body.you.body.splice(1);
 
   // draw my snake's body on board
@@ -59,8 +67,14 @@ app.post('/move', (request, response) => {
     board[element.y][element.x] = 1;
   });
 
+  /* 
+  TODO: Add opponent snakes to the board, consider their next move
+  Maybe create artificially larger head for opponent snakes??
+  */
+
   console.table(board);
 
+  // Running easystar library passing in board array
   easystar.setGrid(board);
   easystar.setAcceptableTiles([0]);
   easystar.enableSync();
@@ -70,16 +84,17 @@ app.post('/move', (request, response) => {
       console.log("The path to the destination point was not found.");
     } else {
       nextMoveToFood = path;
-      console.log("First move should be: " + path[1].x + " " + path[1].y);
     }
   });
 
   easystar.calculate();
 
   const data = {
-    move: 'left' // one of: ['up','down','left','right']
-  }
+    move: 'up' // default to up
+  };
 
+  // For now just uses first food object coords. nextMoveToFood[0] is current coords
+  // TODO: Implement system for handling priority between L R U D
   if (mySnakeHead.x > nextMoveToFood[1].x) {
     data.move = 'left';
   } else if (mySnakeHead.x < nextMoveToFood[1].x) {
@@ -89,26 +104,26 @@ app.post('/move', (request, response) => {
   } else if (mySnakeHead.y > nextMoveToFood[1].y) {
     data.move = 'up';
   }
-  console.log("I moved " + data.move + " on turn " + request.body.turn);
+
   return response.json(data);
-})
+});
 
 app.post('/end', (request, response) => {
   // NOTE: Any cleanup when a game is complete.
-  return response.json({})
-})
+  return response.json({});
+});
 
 app.post('/ping', (request, response) => {
   // Used for checking if this snake is still alive.
-  return response.json({})
-})
+  return response.json({});
+});
 
 // --- SNAKE LOGIC GOES ABOVE THIS LINE ---
 
-app.use('*', fallbackHandler)
-app.use(notFoundHandler)
-app.use(genericErrorHandler)
+app.use('*', fallbackHandler);
+app.use(notFoundHandler);
+app.use(genericErrorHandler);
 
 app.listen(app.get('port'), () => {
-  console.log('Server listening on port %s', app.get('port'))
-})
+  console.log('Server listening on port %s', app.get('port'));
+});
