@@ -64,9 +64,10 @@ app.post('/move', (request, response) => {
 
   let foodArray = [];
   let foodTest = request.body.board.food;
-  let leastMovesRequired = 0;
+  let leastMovesRequired = 100;
+  let moveDistance;
   for (let i = 0; i < foodTest.length; i++) {
-    let moveDistance = Math.abs(mySnakeHead.x - foodTest[i].x) + Math.abs(mySnakeHead.y - foodTest[i].y);
+    moveDistance = Math.abs(mySnakeHead.x - foodTest[i].x) + Math.abs(mySnakeHead.y - foodTest[i].y);
     foodArray[i] = moveDistance;
 
     if (moveDistance < leastMovesRequired) {
@@ -78,7 +79,7 @@ app.post('/move', (request, response) => {
   console.table(foodArray);
   foodArray = [];
   // foodTest.forEach(element => {
-  //   console.log(abs(mySnakeHead.x - element.x) + abs(mySnakeHead.y - element.y));
+  //   console.log(Math.abs(mySnakeHead.x - element.x) + Math.abs(mySnakeHead.y - element.y));
   // });
 
   // place my snake's body on board
