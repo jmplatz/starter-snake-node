@@ -62,7 +62,7 @@ app.post('/move', (request, response) => {
   // coords of my snake's body
   const mySnakeBody = request.body.you.body.splice(1);
 
-  // draw my snake's body on board
+  // place my snake's body on board
   mySnakeBody.forEach(element => {
     board[element.y][element.x] = 1;
   });
