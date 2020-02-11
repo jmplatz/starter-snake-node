@@ -56,6 +56,13 @@ app.post('/move', (request, response) => {
   // will hold move towards food
   let nextMoveToFood = [];
 
+  let closestFood = [];
+  const foodTest = request.body.board.food;
+  foodTest.forEach(element => {
+    closestFood.push(abs(mySnakeHead.x - element.x) + abs(mySnakeHead.y - element.y));
+    console.log(closestFood);
+  });
+
   // coords for my snake's head
   const mySnakeHead = request.body.you.body[0];
 
