@@ -62,32 +62,27 @@ app.post('/move', (request, response) => {
   // coords of my snake's body
   const mySnakeBody = request.body.you.body.splice(1);
 
-  let foodArray = [];
-  let foodTest = request.body.board.food;
-  let leastMovesRequired = 100;
-  let moveIndex = 0;
-  let moveDistance;
-  // for (let i = 0; i < foodTest.length; i++) {
-  //   moveDistance = Math.abs(mySnakeHead.x - foodTest[i].x) + Math.abs(mySnakeHead.y - foodTest[i].y);
+  // let foodArray = [];
+  // let foodLocations = request.body.board.food;
+  // let leastMovesRequired = 100;
+  // let moveDistance;
+  // for (let i = 0; i < foodLocations.length; i++) {
+  //   moveDistance = Math.abs(mySnakeHead.x - foodLocations[i].x) + Math.abs(mySnakeHead.y - foodLocations[i].y);
   //   foodArray[i] = moveDistance;
 
   //   if (moveDistance < leastMovesRequired) {
   //     leastMovesRequired = moveDistance;
-  //     console.log(`${i} is the closest food this turn.`);
   //   }
-  //   console.log(`Here is the ${i} piece of food at Y: ${foodTest[i].y} and X: ${foodTest[i].x}`);
   // }
-  foodTest.forEach(element => {
-    moveDistance = Math.abs(mySnakeHead.x - element.x) + Math.abs(mySnakeHead.y - element.y);
-    foodArray[i] = moveDistance;
 
-    if (moveDistance < leastMovesRequired) {
-      leastMovesRequired = moveDistance;
-      moveIndex = i;
-    }
-  });
+  let foodArray = [];
+  const foodLocations = request.body.board.food;
+  for (let i = 0; i < foodLocations.length; i++) {
+    foodArray.push(Math.abs(mySnakeHead.x - foodLocations[i].x) + Math.abs(mySnakeHead.y - foodLocations[i].y));
+  }
 
-  console.log("This is the closest food: " + moveIndex);
+  const indexOfMinValue = foodArray.indexOf(Math.min(...foodArray));
+  console.log("This is the closest food: " + indexOfMaxValue);
   foodArray = [];
 
   // place my snake's body on board
