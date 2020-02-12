@@ -40,20 +40,16 @@ app.post('/start', (request, response) => {
 app.post('/move', (request, response) => {
   const easystar = new easystarjs.js();
 
-  // Draw board 2darray
+  // //Draw board 2D Array
   let board = Array(request.body.board.height).fill().map(
     () => Array(request.body.board.width).fill(0));
 
-  board.forEach(element => {
-    if (y == 0)
-      board[element.y][element.x] = 1;
-    else if (x == 0)
-      board[element.y][element.x] = 1;
-    else if (x == request.body.board.height - 1)
-      board[element.y][element.x] = 1;
-    else if (y == request.body.board.height - 1)
-      board[element.y][element.x] = 1;
+  board.forEach(row => {
+    row.forEach(col => {
+      console.log(col);
+    });
   });
+
 
   // coords for my snake's head
   const mySnakeHead = request.body.you.body[0];
