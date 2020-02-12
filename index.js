@@ -46,7 +46,8 @@ app.post('/move', (request, response) => {
 
   board.forEach(row => {
     row.forEach(col => {
-      console.log(col);
+      if (row === 0)
+        board[row][col] = 1;
     });
   });
 
