@@ -49,91 +49,93 @@ app.post('/move', (request, response) => {
 
   for (let i = 0; i < board.length; i++) {
     for (let k = 0; k < board[i].length; k++) {
-      if (i == 0)
+      if (i == 0 || k == 0)
         board[i][k] = 1;
-      else if (i == boardHeight)
+      else if (i == boardHeight || i == boardWidth)
         board[i][k] = 1;
     }
   }
-}
 
 
-// coords for my snake's head
-const mySnakeHead = request.body.you.body[0];
-// coords of my snake's body
-const mySnakeBody = request.body.you.body.splice(1);
-// place my snake's body on board
-mySnakeBody.forEach(element => {
-  board[element.y][element.x] = 2;
-});
-
-/*
-TODO: create a function that finds the closest food 
-to snakehead and passes that to easystar each round.
-
-If path can't be found for closest, iterate through other options
-*/
-let foodArray = [];
-const foodLocations = request.body.board.food;
-
-// TODO: Convert to foreach
-for (let i = 0; i < foodLocations.length; i++) {
-  let moveDistance = Math.abs(mySnakeHead.x - foodLocations[i].x) + Math.abs(mySnakeHead.y - foodLocations[i].y);
-  foodArray.push(moveDistance);
-}
-// Finds index of shortest distance and passes to food
-let indexOfMinValue = foodArray.indexOf(Math.min(...foodArray));
-
-// finds first food object
-const food = request.body.board.food[indexOfMinValue];
-// will hold move towards food
-let nextMoveToFood = []; foodArray = [];
-
-/* 
-TODO: Add opponent snakes to the board, consider their next move
-Maybe create artificially larger head for opponent snakes??
-*/
-
-const opponentSnakes = request.body.board.snakes;
-
-opponentSnakes.forEach(snakes => {
-  snakes.body.forEach(element => {
+  // coords for my snake's head
+  const mySnakeHead = request.body.you.body[0];
+  // coords of my snake's body
+  const mySnakeBody = request.body.you.body.splice(1);
+  // place my snake's body on board
+  mySnakeBody.forEach(element => {
     board[element.y][element.x] = 2;
   });
-});
 
-console.table(board);
+  /*
+  TODO: create a function that finds the closest food 
+  to snakehead and passes that to easystar each round.
 
-// Running easystar library passing in board array
-easystar.setGrid(board); easystar.setAcceptableTiles([0, 1]); easystar.enableSync();
+  If path can't be found for closest, iterate through other options
+  */
+  let foodArray = [];
+  const foodLocations = request.body.board.food;
 
-easystar.findPath(mySnakeHead.x, mySnakeHead.y, food.x, food.y, function (path) {
-  if (path === null) {
-    console.log("The path to the destination point was not found.");
-  } else {
-    nextMoveToFood = path;
+  // TODO: Convert to foreach
+  for (let i = 0; i < foodLocations.length; i++) {
+    let moveDistance = Math.abs(mySnakeHead.x - foodLocations[i].x) + Math.abs(mySnakeHead.y - foodLocations[i].y);
+    foodArray.push(moveDistance);
   }
-});
+  // Finds index of shortest distance and passes to food
+  let indexOfMinValue = foodArray.indexOf(Math.min(...foodArray));
 
-easystar.calculate();
+  // finds first food object
+  const food = request.body.board.food[indexOfMinValue];
+  // will hold move towards food
+  let nextMoveToFood = [];
+  foodArray = [];
 
-const data = {
-  move: 'up' // default to up
-};
+  /* 
+  TODO: Add opponent snakes to the board, consider their next move
+  Maybe create artificially larger head for opponent snakes??
+  */
 
-// For now just uses first food object coords. nextMoveToFood[0] is current coords
-// TODO: Implement system for handling priority between L R U D
-if (mySnakeHead.x > nextMoveToFood[1].x) {
-  data.move = 'left';
-} else if (mySnakeHead.x < nextMoveToFood[1].x) {
-  data.move = 'right';
-} else if (mySnakeHead.y < nextMoveToFood[1].y) {
-  data.move = 'down';
-} else if (mySnakeHead.y > nextMoveToFood[1].y) {
-  data.move = 'up';
-}
+  const opponentSnakes = request.body.board.snakes;
 
-return response.json(data);
+  opponentSnakes.forEach(snakes => {
+    snakes.body.forEach(element => {
+      board[element.y][element.x] = 2;
+    });
+  });
+
+  console.table(board);
+
+  // Running easystar library passing in board array
+  easystar.setGrid(board);
+  easystar.setAcceptableTiles([0, 1]);
+  easystar.enableSync();
+
+  easystar.findPath(mySnakeHead.x, mySnakeHead.y, food.x, food.y, function (path) {
+    if (path === null) {
+      console.log("The path to the destination point was not found.");
+    } else {
+      nextMoveToFood = path;
+    }
+  });
+
+  easystar.calculate();
+
+  const data = {
+    move: 'up' // default to up
+  };
+
+  // For now just uses first food object coords. nextMoveToFood[0] is current coords
+  // TODO: Implement system for handling priority between L R U D
+  if (mySnakeHead.x > nextMoveToFood[1].x) {
+    data.move = 'left';
+  } else if (mySnakeHead.x < nextMoveToFood[1].x) {
+    data.move = 'right';
+  } else if (mySnakeHead.y < nextMoveToFood[1].y) {
+    data.move = 'down';
+  } else if (mySnakeHead.y > nextMoveToFood[1].y) {
+    data.move = 'up';
+  }
+
+  return response.json(data);
 });
 
 app.post('/end', (request, response) => {
