@@ -51,7 +51,7 @@ app.post('/move', (request, response) => {
     for (let k = 0; k < board[i].length; k++) {
       if (i == 0 || k == 0)
         board[i][k] = 1;
-      else if (i == boardHeight || k == boardWidth)
+      else if (i == boardHeight - 1 || k == boardWidth - 1)
         board[i][k] = 1;
     }
   }
