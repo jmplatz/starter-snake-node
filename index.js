@@ -84,6 +84,7 @@ app.post('/move', (request, response) => {
 
   // finds first food object
   const food = request.body.board.food[indexOfMinValue];
+  const foodBackup = request.body.board.food[0];
   // will hold move towards food
   let nextMoveToFood = [];
   foodArray = [];
@@ -112,7 +113,13 @@ app.post('/move', (request, response) => {
 
   easystar.findPath(mySnakeHead.x, mySnakeHead.y, food.x, food.y, function (path) {
     if (path === null) {
-      console.log("The path to the destination point was not found.");
+      easystar.findPath(mySnakeHead.x, mySnakeHead.y, foodBackup.x, foodBackup.y, function (path) {
+        if (path === null) {
+          console.log("The path to the destination point was not found.");
+        } else {
+          nextMoveToFood = path;
+        }
+      });
     } else {
       nextMoveToFood = path;
     }
