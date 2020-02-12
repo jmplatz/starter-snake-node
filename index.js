@@ -106,6 +106,7 @@ app.post('/move', (request, response) => {
   // Running easystar library passing in board array
   easystar.setGrid(board);
   easystar.setAcceptableTiles([0, 1]);
+  easystar.enableSync();
   // easystar.setTileCost(1, 1.2);
 
   easystar.findPath(mySnakeHead.x, mySnakeHead.y, food.x, food.y, function (path) {
