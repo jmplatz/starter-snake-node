@@ -44,13 +44,24 @@ app.post('/move', (request, response) => {
   let board = Array(request.body.board.height).fill().map(
     () => Array(request.body.board.width).fill(0));
 
+  board.forEach(element => {
+    if (y == 0)
+      board[element.y][element.x] = 1;
+    else if (x == 0)
+      board[element.y][element.x] = 1;
+    else if (x == request.body.board.height - 1)
+      board[element.y][element.x] = 1;
+    else if (y == request.body.board.height - 1)
+      board[element.y][element.x] = 1;
+  });
+
   // coords for my snake's head
   const mySnakeHead = request.body.you.body[0];
   // coords of my snake's body
   const mySnakeBody = request.body.you.body.splice(1);
   // place my snake's body on board
   mySnakeBody.forEach(element => {
-    board[element.y][element.x] = 1;
+    board[element.y][element.x] = 2;
   });
 
   /*
@@ -62,6 +73,7 @@ app.post('/move', (request, response) => {
   let foodArray = [];
   const foodLocations = request.body.board.food;
 
+  // TODO: Convert to foreach
   for (let i = 0; i < foodLocations.length; i++) {
     let moveDistance = Math.abs(mySnakeHead.x - foodLocations[i].x) + Math.abs(mySnakeHead.y - foodLocations[i].y);
     foodArray.push(moveDistance);
@@ -84,7 +96,7 @@ app.post('/move', (request, response) => {
 
   opponentSnakes.forEach(snakes => {
     snakes.body.forEach(element => {
-      board[element.y][element.x] = 1;
+      board[element.y][element.x] = 2;
     });
   });
 
