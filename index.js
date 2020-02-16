@@ -47,8 +47,8 @@ app.post('/move', (request, response) => {
     const board = Array(height).fill().map(
       () => Array(width).fill(0));
 
-    drawMySnake(request.body.you.body.splice(1));
-    drawOpponents(request.body.board.snakes);
+    drawMySnake(request.body.you.body.splice(1), board);
+    drawOpponents(request.body.board.snakes, board);
 
     return board;
   }
@@ -66,7 +66,7 @@ app.post('/move', (request, response) => {
   const mySnakeHead = request.body.you.body[0];
   // coords of my snake's body
 
-  const drawMySnake = (mySnakeBody) => {
+  const drawMySnake = (mySnakeBody, board) => {
     mySnakeBody.forEach(element => {
       board[element.y][element.x] = 2;
     });
@@ -77,7 +77,7 @@ app.post('/move', (request, response) => {
   Maybe create artificially larger head for opponent snakes??
   */
 
-  const drawOpponents = (opponentSnakeBodies) => {
+  const drawOpponents = (opponentSnakeBodies, board) => {
     opponentSnakeBodies.forEach(snake => {
       snake.body.forEach(element => {
         board[element.y][element.x] = 2;
