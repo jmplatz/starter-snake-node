@@ -39,31 +39,51 @@ app.post('/start', (request, response) => {
 // Handle POST request to '/move'
 app.post('/move', (request, response) => {
   const easystar = new easystarjs.js();
-
-  // //Draw board 2D Array
   const boardHeight = request.body.board.height;
   const boardWidth = request.body.board.width;
 
-  let board = Array(boardHeight).fill().map(
-    () => Array(boardWidth).fill(0));
+  // Draw board 2D Array
+  const createPlayingBoard = (height, width) => {
+    const board = Array(height).fill().map(
+      () => Array(width).fill(0));
 
-  for (let i = 0; i < board.length; i++) {
-    for (let k = 0; k < board[i].length; k++) {
-      if (i == 0 || k == 0)
-        board[i][k] = 1;
-      else if (i == boardHeight - 1 || k == boardWidth - 1)
-        board[i][k] = 1;
-    }
+    drawMySnake(request.body.you.body.splice(1));
+    drawOpponents(request.body.board.snakes);
+
+    return board;
   }
+
+  // for (let i = 0; i < board.length; i++) {
+  //   for (let k = 0; k < board[i].length; k++) {
+  //     if (i == 0 || k == 0)
+  //       board[i][k] = 1;
+  //     else if (i == boardHeight - 1 || k == boardWidth - 1)
+  //       board[i][k] = 1;
+  //   }
+  // }
 
   // coords for my snake's head
   const mySnakeHead = request.body.you.body[0];
   // coords of my snake's body
-  const mySnakeBody = request.body.you.body.splice(1);
-  // place my snake's body on board
-  mySnakeBody.forEach(element => {
-    board[element.y][element.x] = 2;
-  });
+
+  const drawMySnake = (mySnakeBody) => {
+    mySnakeBody.forEach(element => {
+      board[element.y][element.x] = 2;
+    });
+  }
+
+  /* 
+  TODO: Add opponent snakes to the board, consider their next move
+  Maybe create artificially larger head for opponent snakes??
+  */
+
+  const drawOpponents = (opponentSnakeBodies) => {
+    opponentSnakeBodies.forEach(snake => {
+      snake.body.forEach(element => {
+        board[element.y][element.x] = 2;
+      });
+    });
+  }
 
   /*
   TODO: create a function that finds the closest food 
@@ -84,42 +104,22 @@ app.post('/move', (request, response) => {
 
   // finds first food object
   const food = request.body.board.food[indexOfMinValue];
-  const foodBackup = request.body.board.food[0];
   // will hold move towards food
   let nextMoveToFood = [];
   foodArray = [];
 
-  /* 
-  TODO: Add opponent snakes to the board, consider their next move
-  Maybe create artificially larger head for opponent snakes??
-  */
-
-  const opponentSnakes = request.body.board.snakes;
-
-  opponentSnakes.forEach(snakes => {
-    snakes.body.forEach(element => {
-      board[element.y][element.x] = 2;
-    });
-  });
-
   console.table(board);
 
   // Running easystar library passing in board array
-  easystar.setGrid(board);
-  easystar.setAcceptableTiles([0, 1]);
-  // required to work
-  easystar.enableSync();
-  easystar.setTileCost(1, 2);
+  easystar.setGrid(createPlayingBoard(boardHeight, boardWidth));
+  easystar.setAcceptableTiles([0, 1]); //create a funciton to dynamically choose acceptable tiles
+  easystar.setTileCost(1, 2); //create a function to dynamically choose multiplier
+  easystar.enableSync(); // required to work
 
+  // loop through possible options, nearest food, other food on board, survival mode or attack mode
   easystar.findPath(mySnakeHead.x, mySnakeHead.y, food.x, food.y, function (path) {
     if (path === null) {
-      easystar.findPath(mySnakeHead.x, mySnakeHead.y, foodBackup.x, foodBackup.y, function (path) {
-        if (path === null) {
-          console.log("The path to the destination point was not found.");
-        } else {
-          nextMoveToFood = path;
-        }
-      });
+      console.log("The path to the destination point was not found.");
     } else {
       nextMoveToFood = path;
     }
@@ -145,6 +145,7 @@ app.post('/move', (request, response) => {
 
   return response.json(data);
 });
+
 
 app.post('/end', (request, response) => {
   // NOTE: Any cleanup when a game is complete.
