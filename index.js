@@ -47,11 +47,31 @@ app.post('/move', (request, response) => {
     const board = Array(height).fill().map(
       () => Array(width).fill(0));
 
-    drawMySnake(request.body.you.body.splice(1), board);
-    drawOpponents(request.body.board.snakes, board);
+    const mySnakeBody = request.body.you.body.splice(1);
+    const myOpponentSnakes = request.body.board.snakes;
 
+    drawMySnake(mySnakeBody);
+    drawOpponents(myOpponentSnakes);
+
+    console.table(board);
     return board;
   }
+
+  const drawMySnake = (mySnakeBody) => {
+    mySnakeBody.forEach(element => {
+      board[element.y][element.x] = 2;
+    });
+  }
+
+  const drawOpponents = (opponentSnakeBodies) => {
+    opponentSnakeBodies.forEach(snakes => {
+      snakes.body.forEach(element => {
+        board[element.y][element.x] = 2;
+      });
+    });
+  }
+
+
 
   // for (let i = 0; i < board.length; i++) {
   //   for (let k = 0; k < board[i].length; k++) {
@@ -66,24 +86,12 @@ app.post('/move', (request, response) => {
   const mySnakeHead = request.body.you.body[0];
   // coords of my snake's body
 
-  const drawMySnake = (mySnakeBody, board) => {
-    mySnakeBody.forEach(element => {
-      board[element.y][element.x] = 2;
-    });
-  }
-
   /* 
   TODO: Add opponent snakes to the board, consider their next move
   Maybe create artificially larger head for opponent snakes??
   */
 
-  const drawOpponents = (opponentSnakeBodies, board) => {
-    opponentSnakeBodies.forEach(snake => {
-      snake.body.forEach(element => {
-        board[element.y][element.x] = 2;
-      });
-    });
-  }
+
 
   /*
   TODO: create a function that finds the closest food 
@@ -112,8 +120,8 @@ app.post('/move', (request, response) => {
 
   // Running easystar library passing in board array
   easystar.setGrid(createPlayingBoard(boardHeight, boardWidth));
-  easystar.setAcceptableTiles([0, 1]); //create a funciton to dynamically choose acceptable tiles
-  easystar.setTileCost(1, 2); //create a function to dynamically choose multiplier
+  easystar.setAcceptableTiles([0]); //create a funciton to dynamically choose acceptable tiles
+  // easystar.setTileCost(1, 2); //create a function to dynamically choose multiplier
   easystar.enableSync(); // required to work
 
   // loop through possible options, nearest food, other food on board, survival mode or attack mode
