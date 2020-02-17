@@ -54,20 +54,18 @@ app.post('/move', (request, response) => {
 
     const mySnake = request.body.you.body;
     const mySnakeBody = mySnake.splice(1);
-    const myTail = mySnake.splice(0, mySnake.length - 1);
     const myOpponentSnakes = request.body.board.snakes;
 
-    createMySnake(mySnakeBody, myTail, board);
+    createMySnake(mySnakeBody, board);
     createMyOpponents(myOpponentSnakes, board);
 
     return board;
   }
 
-  function drawMySnake(mySnakeBody, myTail, board) {
+  function drawMySnake(mySnakeBody, board) {
     mySnakeBody.forEach(element => {
       board[element.y][element.x] = 1;
     });
-    board[myTail.y][myTail.x] = 5;
   }
 
   function drawOpponents(opponentSnakeBodies, board) {
