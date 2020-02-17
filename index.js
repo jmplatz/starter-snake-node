@@ -45,19 +45,20 @@ app.post('/move', (request, response) => {
   };
 
   // Draw 2D Array with obstacles
-  function createPlayingBoard(mySnake, opponents) {
+  function createPlayingBoard(createMySnake, createMyOpponents) {
     const boardHeight = request.body.board.height;
     const boardWidth = request.body.board.width;
 
     const board = Array(boardHeight).fill().map(
       () => Array(boardWidth).fill(0));
 
-    const mySnakeBody = request.body.you.body.splice(1);
-    const myTail = request.body.you.body.splice(0, body.length - 1);
+    const mySnake = request.body.you.body;
+    const mySnakeBody = mySnake.splice(1);
+    const myTail = mySnake.splice(0, mySnake.length - 1);
     const myOpponentSnakes = request.body.board.snakes;
 
-    mySnake(mySnakeBody, myTail, board);
-    opponents(myOpponentSnakes, board);
+    createMySnake(mySnakeBody, myTail, board);
+    createMyOpponents(myOpponentSnakes, board);
 
     return board;
   }
@@ -95,8 +96,6 @@ app.post('/move', (request, response) => {
 
   // coords for my snake's head
   const mySnakeHead = request.body.you.body[0];
-  // coords for my tail
-  // const myTail = request.body.you.body[body.length - 1];
 
   function findClosestFood() {
     const foodArray = [];
