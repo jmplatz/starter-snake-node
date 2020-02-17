@@ -93,12 +93,8 @@ app.post('/move', (request, response) => {
 
   // coords for my snake's head
   const mySnakeHead = request.body.you.body[0];
-  /*
-  TODO: create a function that finds the closest food 
-  to snakehead and passes that to easystar each round.
-
-  If path can't be found for closest, iterate through other options
-  */
+  // coords for my tail
+  const myTail = request.body.you.body[body.length - 1];
 
   function findClosestFood() {
     const foodArray = [];
@@ -118,7 +114,7 @@ app.post('/move', (request, response) => {
   const closestFood = request.body.board.food[findClosestFood()];
 
   // will hold move towards food
-  let pathToClosestFood = [];
+  let nextMove = [];
 
 
 
@@ -131,22 +127,33 @@ app.post('/move', (request, response) => {
   // loop through possible options, nearest food, other food on board, survival mode or attack mode
   easystar.findPath(mySnakeHead.x, mySnakeHead.y, closestFood.x, closestFood.y, function (path) {
     if (path === null) {
-      console.log("The path to the destination point was not found.");
+      console.log("Could not find path to closest food. Activate panic mode.");
+
+      easystar.findPath(mySnakeHead.x, mySnakeHead.y, myTail.x, myTail.y, function (path) {
+        if (path === null) {
+          console.log("Couldn't even chase my own tail...");
+        } else {
+          nextMove = path;
+        }
+      });
+
+      easystar.calculate();
+
     } else {
-      pathToClosestFood = path;
+      nextMove = path;
     }
   });
 
   easystar.calculate();
 
   // TODO: Implement system for handling priority between L R U D
-  if (mySnakeHead.x > pathToClosestFood[1].x) {
+  if (mySnakeHead.x > nextMove[1].x) {
     data.move = 'left';
-  } else if (mySnakeHead.x < pathToClosestFood[1].x) {
+  } else if (mySnakeHead.x < nextMove[1].x) {
     data.move = 'right';
-  } else if (mySnakeHead.y < pathToClosestFood[1].y) {
+  } else if (mySnakeHead.y < nextMove[1].y) {
     data.move = 'down';
-  } else if (mySnakeHead.y > pathToClosestFood[1].y) {
+  } else if (mySnakeHead.y > nextMove[1].y) {
     data.move = 'up';
   }
 
