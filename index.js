@@ -64,11 +64,9 @@ app.post('/move', (request, response) => {
 
   function drawMySnake(mySnakeBody, myTail, board) {
     mySnakeBody.forEach(element => {
-      if (element === myTail)
-        board[element.y][element.x] = 5;
-      else
-        board[element.y][element.x] = 1;
+      board[element.y][element.x] = 1;
     });
+    board[myTail.y][myTail.x] = 5;
   }
 
   function drawOpponents(opponentSnakeBodies, board) {
