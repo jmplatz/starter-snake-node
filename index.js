@@ -53,17 +53,21 @@ app.post('/move', (request, response) => {
       () => Array(boardWidth).fill(0));
 
     const mySnakeBody = request.body.you.body.splice(1);
+    const myTail = request.body.you.body.splice(0, body.length - 1);
     const myOpponentSnakes = request.body.board.snakes;
 
-    mySnake(mySnakeBody, board);
+    mySnake(mySnakeBody, myTail, board);
     opponents(myOpponentSnakes, board);
 
     return board;
   }
 
-  function drawMySnake(mySnakeBody, board) {
+  function drawMySnake(mySnakeBody, myTail, board) {
     mySnakeBody.forEach(element => {
-      board[element.y][element.x] = 1;
+      if (element == myTail)
+        board[element.y][element.x] = 5;
+      else
+        board[element.y][element.x] = 1;
     });
   }
 
@@ -94,7 +98,7 @@ app.post('/move', (request, response) => {
   // coords for my snake's head
   const mySnakeHead = request.body.you.body[0];
   // coords for my tail
-  const myTail = request.body.you.body[body.length - 1];
+  // const myTail = request.body.you.body[body.length - 1];
 
   function findClosestFood() {
     const foodArray = [];
@@ -114,46 +118,39 @@ app.post('/move', (request, response) => {
   const closestFood = request.body.board.food[findClosestFood()];
 
   // will hold move towards food
-  let nextMove = [];
 
 
-
-  // Running easystar library passing in board array
   easystar.setGrid(playingBoard);
-  easystar.setAcceptableTiles([0]); //create a funciton to dynamically choose acceptable tiles
-  // easystar.setTileCost(1, 2); //create a function to dynamically choose multiplier
+  easystar.setAcceptableTiles([0]);
+  // easystar.setTileCost(1, 2)
   easystar.enableSync(); // required to work
 
+
+  function determineNextMove() {
+    return;
+  }
+
+  let nextMove = [];
   // loop through possible options, nearest food, other food on board, survival mode or attack mode
   easystar.findPath(mySnakeHead.x, mySnakeHead.y, closestFood.x, closestFood.y, function (path) {
     if (path === null) {
       console.log("Could not find path to closest food. Activate panic mode.");
-
-      easystar.findPath(mySnakeHead.x, mySnakeHead.y, myTail.x, myTail.y, function (path) {
-        if (path === null) {
-          console.log("Couldn't even chase my own tail...");
-        } else {
-          nextMove = path;
-        }
-      });
-
-      easystar.calculate();
-
     } else {
-      nextMove = path;
+      nextMove.push(path[1]);
+      console.log(nextMove);
     }
   });
 
   easystar.calculate();
 
-  // TODO: Implement system for handling priority between L R U D
-  if (mySnakeHead.x > nextMove[1].x) {
+  // Returns move
+  if (mySnakeHead.x > nextMove[0].x) {
     data.move = 'left';
-  } else if (mySnakeHead.x < nextMove[1].x) {
+  } else if (mySnakeHead.x < nextMove[0].x) {
     data.move = 'right';
-  } else if (mySnakeHead.y < nextMove[1].y) {
+  } else if (mySnakeHead.y < nextMove[0].y) {
     data.move = 'down';
-  } else if (mySnakeHead.y > nextMove[1].y) {
+  } else if (mySnakeHead.y > nextMove[0].y) {
     data.move = 'up';
   }
 
