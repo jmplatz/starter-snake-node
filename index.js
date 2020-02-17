@@ -52,28 +52,24 @@ app.post('/move', (request, response) => {
     const mySnakeBody = request.body.you.body.splice(1);
     const myOpponentSnakes = request.body.board.snakes;
 
-    drawMySnake(mySnakeBody, board);
-    drawOpponents(myOpponentSnakes, board);
+    drawMySnake(mySnakeBody, this.board);
+    drawOpponents(myOpponentSnakes, this.board);
 
     return board;
   }
 
-  const drawMySnake = function (mySnakeBody, playingBoard) {
+  const drawMySnake = function (mySnakeBody, board) {
     mySnakeBody.forEach(element => {
-      playingBoard[element.y][element.x] = 1;
+      board[element.y][element.x] = 1;
     });
-
-    return board;
   }
 
-  const drawOpponents = function (opponentSnakeBodies, playingBoard) {
+  const drawOpponents = function (opponentSnakeBodies, board) {
     opponentSnakeBodies.forEach(snakes => {
       snakes.body.forEach(element => {
-        playingBoard[element.y][element.x] = 1;
+        board[element.y][element.x] = 1;
       });
     });
-
-    return board;
   }
 
   const playingBoard = createPlayingBoard(drawMySnake, drawOpponents);
@@ -141,10 +137,6 @@ app.post('/move', (request, response) => {
 
   easystar.calculate();
 
-  const data = {
-    move: 'up' // default to up
-  };
-
   // For now just uses first food object coords. nextMoveToFood[0] is current coords
   // TODO: Implement system for handling priority between L R U D
   if (mySnakeHead.x > nextMoveToFood[1].x) {
@@ -156,6 +148,9 @@ app.post('/move', (request, response) => {
   } else if (mySnakeHead.y > nextMoveToFood[1].y) {
     data.move = 'up';
   }
+  const data = {
+    move: 'up' // default to up
+  };
 
   return response.json(data);
 });
