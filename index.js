@@ -40,31 +40,35 @@ app.post('/start', (request, response) => {
 app.post('/move', (request, response) => {
   const easystar = new easystarjs.js();
 
+  const data = {
+    move: 'up' // default to up
+  };
+
 
   // Draw board 2D Array
-  const createPlayingBoard = function (drawMySnake, drawOpponents) {
+  function createPlayingBoard(mySnake, opponents) {
     const boardHeight = request.body.board.height;
     const boardWidth = request.body.board.width;
 
-    let board = Array(boardHeight).fill().map(
+    const board = Array(boardHeight).fill().map(
       () => Array(boardWidth).fill(0));
 
     const mySnakeBody = request.body.you.body.splice(1);
     const myOpponentSnakes = request.body.board.snakes;
 
-    drawMySnake(mySnakeBody, this.board);
-    drawOpponents(myOpponentSnakes, this.board);
+    mySnake(mySnakeBody, board);
+    opponents(myOpponentSnakes, board);
 
     return board;
   }
 
-  const drawMySnake = function (mySnakeBody, board) {
+  function drawMySnake(mySnakeBody, board) {
     mySnakeBody.forEach(element => {
       board[element.y][element.x] = 1;
     });
   }
 
-  const drawOpponents = function (opponentSnakeBodies, board) {
+  function drawOpponents(opponentSnakeBodies, board) {
     opponentSnakeBodies.forEach(snakes => {
       snakes.body.forEach(element => {
         board[element.y][element.x] = 1;
@@ -148,9 +152,6 @@ app.post('/move', (request, response) => {
   } else if (mySnakeHead.y > nextMoveToFood[1].y) {
     data.move = 'up';
   }
-  const data = {
-    move: 'up' // default to up
-  };
 
   return response.json(data);
 });
