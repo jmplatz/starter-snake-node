@@ -64,7 +64,7 @@ app.post('/move', (request, response) => {
 
   function drawMySnake(mySnakeBody, myTail, board) {
     mySnakeBody.forEach(element => {
-      if (element == myTail)
+      if (element === myTail)
         board[element.y][element.x] = 5;
       else
         board[element.y][element.x] = 1;
@@ -125,32 +125,25 @@ app.post('/move', (request, response) => {
   // easystar.setTileCost(1, 2)
   easystar.enableSync(); // required to work
 
-
-  function determineNextMove() {
-    return;
-  }
-
   let nextMove = [];
-  // loop through possible options, nearest food, other food on board, survival mode or attack mode
   easystar.findPath(mySnakeHead.x, mySnakeHead.y, closestFood.x, closestFood.y, function (path) {
     if (path === null) {
       console.log("Could not find path to closest food. Activate panic mode.");
     } else {
-      nextMove.push(path[1]);
-      console.log(nextMove);
+      nextMove = path;
     }
   });
 
   easystar.calculate();
 
   // Returns move
-  if (mySnakeHead.x > nextMove[0].x) {
+  if (mySnakeHead.x > nextMove[1].x) {
     data.move = 'left';
-  } else if (mySnakeHead.x < nextMove[0].x) {
+  } else if (mySnakeHead.x < nextMove[1].x) {
     data.move = 'right';
-  } else if (mySnakeHead.y < nextMove[0].y) {
+  } else if (mySnakeHead.y < nextMove[1].y) {
     data.move = 'down';
-  } else if (mySnakeHead.y > nextMove[0].y) {
+  } else if (mySnakeHead.y > nextMove[1].y) {
     data.move = 'up';
   }
 
