@@ -53,25 +53,25 @@ app.post('/move', (request, response) => {
     drawMySnake(mySnakeBody);
     drawOpponents(myOpponentSnakes);
 
-    console.table(board);
     return board;
   }
 
   const drawMySnake = (mySnakeBody) => {
     mySnakeBody.forEach(element => {
-      board[element.y][element.x] = 2;
+      board[element.y][element.x] = 1;
     });
   }
 
   const drawOpponents = (opponentSnakeBodies) => {
     opponentSnakeBodies.forEach(snakes => {
       snakes.body.forEach(element => {
-        board[element.y][element.x] = 2;
+        board[element.y][element.x] = 1;
       });
     });
   }
 
-
+  const playingBoard = createPlayingBoard(drawMySnake, drawOpponents);
+  console.table(playingBoard);
 
   // for (let i = 0; i < board.length; i++) {
   //   for (let k = 0; k < board[i].length; k++) {
@@ -119,7 +119,7 @@ app.post('/move', (request, response) => {
 
 
   // Running easystar library passing in board array
-  easystar.setGrid(createPlayingBoard(drawMySnake, drawOpponents));
+  easystar.setGrid(playingBoard);
   easystar.setAcceptableTiles([0]); //create a funciton to dynamically choose acceptable tiles
   // easystar.setTileCost(1, 2); //create a function to dynamically choose multiplier
   easystar.enableSync(); // required to work
