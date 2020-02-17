@@ -39,35 +39,41 @@ app.post('/start', (request, response) => {
 // Handle POST request to '/move'
 app.post('/move', (request, response) => {
   const easystar = new easystarjs.js();
-  const boardHeight = request.body.board.height;
-  const boardWidth = request.body.board.width;
+
 
   // Draw board 2D Array
-  const createPlayingBoard = (drawMySnake, drawOpponents) => {
+  const createPlayingBoard = function (drawMySnake, drawOpponents) {
+    const boardHeight = request.body.board.height;
+    const boardWidth = request.body.board.width;
+
     let board = Array(boardHeight).fill().map(
       () => Array(boardWidth).fill(0));
 
     const mySnakeBody = request.body.you.body.splice(1);
     const myOpponentSnakes = request.body.board.snakes;
 
-    drawMySnake(mySnakeBody);
-    drawOpponents(myOpponentSnakes);
+    drawMySnake(mySnakeBody, board);
+    drawOpponents(myOpponentSnakes, board);
 
     return board;
   }
 
-  const drawMySnake = (mySnakeBody) => {
+  const drawMySnake = function (mySnakeBody, playingBoard) {
     mySnakeBody.forEach(element => {
-      board[element.y][element.x] = 1;
+      playingBoard[element.y][element.x] = 1;
     });
+
+    return board;
   }
 
-  const drawOpponents = (opponentSnakeBodies) => {
+  const drawOpponents = function (opponentSnakeBodies, playingBoard) {
     opponentSnakeBodies.forEach(snakes => {
       snakes.body.forEach(element => {
-        board[element.y][element.x] = 1;
+        playingBoard[element.y][element.x] = 1;
       });
     });
+
+    return board;
   }
 
   const playingBoard = createPlayingBoard(drawMySnake, drawOpponents);
