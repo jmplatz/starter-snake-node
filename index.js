@@ -43,9 +43,9 @@ app.post('/move', (request, response) => {
   const boardWidth = request.body.board.width;
 
   // Draw board 2D Array
-  const createPlayingBoard = (height, width) => {
-    const board = Array(height).fill().map(
-      () => Array(width).fill(0));
+  const createPlayingBoard = (drawMySnake, drawOpponents) => {
+    let board = Array(boardHeight).fill().map(
+      () => Array(boardWidth).fill(0));
 
     const mySnakeBody = request.body.you.body.splice(1);
     const myOpponentSnakes = request.body.board.snakes;
@@ -116,10 +116,10 @@ app.post('/move', (request, response) => {
   let nextMoveToFood = [];
   foodArray = [];
 
-  console.table(board);
+
 
   // Running easystar library passing in board array
-  easystar.setGrid(createPlayingBoard(boardHeight, boardWidth));
+  easystar.setGrid(createPlayingBoard(drawMySnake, drawOpponents));
   easystar.setAcceptableTiles([0]); //create a funciton to dynamically choose acceptable tiles
   // easystar.setTileCost(1, 2); //create a function to dynamically choose multiplier
   easystar.enableSync(); // required to work
