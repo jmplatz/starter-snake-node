@@ -16,6 +16,7 @@
     "cross-env": "^5.2.0",
     "easystarjs": "^0.4.3",
     "express": "^4.16.4",
+    "jshint": "^2.11.0",
     "morgan": "^1.9.1"
   },
   "devDependencies": {

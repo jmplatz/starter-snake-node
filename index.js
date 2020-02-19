@@ -44,6 +44,12 @@ app.post('/move', (request, response) => {
     move: 'up' // default to up
   };
 
+  const mySnake = {
+    head: request.body.you.body[0],
+    body: request.body.you.body.splice(1),
+    tail: request.body.you.body.splice(),
+  };
+
   // Draw 2D Array with obstacles
   function createPlayingBoard(createMySnake, createMyOpponents) {
     const boardHeight = request.body.board.height;
@@ -96,24 +102,32 @@ app.post('/move', (request, response) => {
   const mySnakeHead = request.body.you.body[0];
 
   function findClosestFood() {
-    const foodArray = [];
+    // parallel arrays
+    const foodMoveDistances = [];
+    const foodIndexes = [];
+    
     const foodLocations = request.body.board.food;
 
     for (let i = 0; i < foodLocations.length; i++) {
       let moveDistance = Math.abs(mySnakeHead.x - foodLocations[i].x) + Math.abs(mySnakeHead.y - foodLocations[i].y);
-      foodArray.push(moveDistance);
+      foodMoveDistances.push(moveDistance);
     }
-    // Finds index of shortest distance and passes to food
-    let indexOfMinValue = foodArray.indexOf(Math.min(...foodArray));
+
+    // Index of each food object
+    foodMoveDistances.forEach(element => {
+      foodIndexes.push(foodMoveDistances.indexOf(element));
+    });
+    console.table(foodIndexes);
+
+    // Finds index of closest food
+    let indexOfMinValue = foodMoveDistances.indexOf(Math.min(...foodMoveDistances));
+    
 
     return indexOfMinValue;
   }
 
   // finds closest food object
   const closestFood = request.body.board.food[findClosestFood()];
-
-  // will hold move towards food
-
 
   easystar.setGrid(playingBoard);
   easystar.setAcceptableTiles([0]);
@@ -144,7 +158,6 @@ app.post('/move', (request, response) => {
 
   return response.json(data);
 });
-
 
 app.post('/end', (request, response) => {
   // NOTE: Any cleanup when a game is complete.
