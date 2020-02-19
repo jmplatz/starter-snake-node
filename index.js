@@ -117,7 +117,7 @@ app.post('/move', (request, response) => {
     foodMoveDistances.forEach(element => {
       foodIndexes.push(foodMoveDistances.indexOf(element));
     });
-    console.table(foodIndexes);
+    console.table([foodMoveDistances],[foodIndexes]);
 
     // Finds index of closest food
     let indexOfMinValue = foodMoveDistances.indexOf(Math.min(...foodMoveDistances));
