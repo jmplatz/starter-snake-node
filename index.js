@@ -101,7 +101,7 @@ app.post("/move", (request, response) => {
       foodMovesArray.push(moveDistance);
     }
     console.log(
-      `6. Outputted array with ${foodMovesArray.length} total moves to findClosestFood()`
+      `6. Outputted array with ${foodMovesArray.length} total moves to selectMove`
     );
     return foodMovesArray;
   }
@@ -131,15 +131,15 @@ app.post("/move", (request, response) => {
     let nextMove = [];
     let pathFound = false;
     const mySnakeHead = request.body.you.body[0];
-    console.log(
-      "4. intialize empty move array and pathFound bpoolean to false"
-    );
+    console.log("4. Intializing selectMove Function");
 
     const foodMoves = distances();
-    console.log("7. Returned back to selectMove with distance array");
+    console.log(
+      `7. Returned back to selectMove with distances array: ${foodMoves}`
+    );
 
     while (foodMoves.length > 0 && pathFound == false) {
-      console.log("8. Entering while loop, need to find shorest index");
+      console.log("8. Entering while loop.");
       const indexOfClosest = calculateClosest(foodMoves);
       const closestFood = request.body.board.food[indexOfClosest];
       easystar.findPath(
@@ -152,8 +152,14 @@ app.post("/move", (request, response) => {
             console.log(
               "Could not find path to closest food. Trying next closest."
             );
-            console.log(`Length of array is ${foodMoves.length}`);
             foodMoves.splice(indexOfClosest, 1);
+            console.log(`Length of array is now ${foodMoves.length}`);
+            if (foodMoves.length == 0) {
+              // append panic mode coordinates
+              console.log(
+                "Should have entered panic mode, if it existed... You're dead now."
+              );
+            }
           } else {
             nextMove = path;
             console.log("Path found, returning nextMove");
@@ -168,7 +174,9 @@ app.post("/move", (request, response) => {
 
   console.log("3. Selecting move");
   const theMove = selectMove(findClosestFood, findFoodDistances);
+
   // Returns move
+  console.log("Submitted move.");
   if (mySnakeHead.x > theMove[1].x) {
     data.move = "left";
   } else if (mySnakeHead.x < theMove[1].x) {
