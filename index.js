@@ -88,7 +88,7 @@ app.post("/move", (request, response) => {
   */
 
   function findFoodDistances() {
-    console.log("Entered findFoodDistances()");
+    console.log("5. Entered findFoodDistances()");
     const foodMovesArray = [];
     const foodLocations = request.body.board.food;
 
@@ -99,23 +99,22 @@ app.post("/move", (request, response) => {
       foodMovesArray.push(moveDistance);
     }
     console.log(
-      `Outputted array with ${foodMovesArray.length} total moves to findClosestFood()`
+      `6. Outputted array with ${foodMovesArray.length} total moves to findClosestFood()`
     );
     return foodMovesArray;
   }
 
   function findClosestFood(foodArray) {
-    console.log("Entered findClosestFood()");
+    console.log("9. Entered findClosestFood()");
     const index = foodArray.indexOf(Math.min(...foodArray));
-    console.log(`Outputted the element at index ${index} as closest.`);
+    console.log(`10. Outputted the element at index ${index} as closest.`);
     return index;
   }
 
-  console.log("Board Created");
+  console.log("1. Board Created");
   const playingBoard = createPlayingBoard(drawMySnake, drawOpponents);
-  console.table(playingBoard);
 
-  console.log("Initializing easyStar API");
+  console.log("2. Initializing easyStar API");
   const easystar = new easystarjs.js();
   easystar.setGrid(playingBoard);
   easystar.setAcceptableTiles([0]);
@@ -130,10 +129,13 @@ app.post("/move", (request, response) => {
     let nextMove = [];
     let pathFound = false;
     const mySnakeHead = request.body.you.body[0];
+    console.log("4. Created empty array, set pathFound to false");
 
     let foodMoves = distances();
+    console.log("7. Returned back to selectMove with distance array");
 
     while (foodMoves.length > 0 && pathFound == false) {
+      console.log("8. Entering while loop, need to find shorest index");
       const indexOfClosest = calculateClosest(foodMoves);
       const closestFood = request.body.board.food[indexOfClosest];
       easystar.findPath(
@@ -146,25 +148,21 @@ app.post("/move", (request, response) => {
             console.log(
               "Could not find path to closest food. Trying next closest."
             );
+            console.log(`Length of array is ${foodMoves.length}`);
+            foodMoves = foodMoves.splice(indexOfClosest, 1);
           } else {
             nextMove = path;
+            console.log("Path found, returning nextMove");
+            pathFound = true;
           }
         }
       );
       easystar.calculate();
-
-      if (path === null) {
-        // remove shortest from array, rerun distance and select closest, loop until empty.
-        foodMoves = foodMoves.splice(indexOfClosest, 1);
-        console.log(`Length of array is ${foodMoves.length}`);
-      } else {
-        console.log("Path found, returning nextMove");
-        pathFound = true;
-      }
     }
     return nextMove;
   }
 
+  console.log("3. Selecting move");
   const theMove = selectMove(findClosestFood, findFoodDistances);
   const mySnakeHead = request.body.you.body[0];
   // Returns move
