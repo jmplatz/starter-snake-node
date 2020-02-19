@@ -97,7 +97,7 @@ app.post("/move", (request, response) => {
   // }
 
   function findFoodDistances() {
-    console.log("Entered findFoodDistances");
+    console.log("Entered findFoodDistances()");
     const foodMovesArray = [];
     const foodLocations = request.body.board.food;
 
@@ -107,15 +107,19 @@ app.post("/move", (request, response) => {
         Math.abs(mySnakeHead.y - foodLocations[i].y);
       foodMovesArray.push(moveDistance);
     }
-    console.log(`returned ${foodMovesArray} to findClosestFood()`);
+    console.log(
+      `Outputted array with ${foodMovesArray.length} total moves to findClosestFood()`
+    );
     return foodMovesArray;
   }
 
   function findClosestFood(findDistances) {
     console.log("Entered findClosestFood()");
+    console.log("findClosestFood requires the result of findFoodDistances().");
     const closestFood = findDistances();
+    console.log(`Returned with array${closestFood}`);
     const index = closestFood.indexOf(Math.min(...closestFood));
-    console.log(`Returned ${index} to main.`);
+    console.log(`Returned the element at index ${index} as closest.`);
     return index;
   }
 
