@@ -87,15 +87,6 @@ app.post("/move", (request, response) => {
   TODO: Create function that creates expensive tiles around enemy snake heads
   */
 
-  // for (let i = 0; i < board.length; i++) {
-  //   for (let k = 0; k < board[i].length; k++) {
-  //     if (i == 0 || k == 0)
-  //       board[i][k] = 1;
-  //     else if (i == boardHeight - 1 || k == boardWidth - 1)
-  //       board[i][k] = 1;
-  //   }
-  // }
-
   function findFoodDistances() {
     console.log("Entered findFoodDistances()");
     const foodMovesArray = [];
@@ -113,13 +104,10 @@ app.post("/move", (request, response) => {
     return foodMovesArray;
   }
 
-  function findClosestFood(findDistances) {
+  function findClosestFood(foodArray) {
     console.log("Entered findClosestFood()");
-    console.log("findClosestFood requires the result of findFoodDistances().");
-    const closestFood = findDistances();
-    console.log(`Returned with array${closestFood}`);
-    const index = closestFood.indexOf(Math.min(...closestFood));
-    console.log(`Returned the element at index ${index} as closest.`);
+    const index = foodArray.indexOf(Math.min(...foodArray));
+    console.log(`Outputted the element at index ${index} as closest.`);
     return index;
   }
 
@@ -134,39 +122,59 @@ app.post("/move", (request, response) => {
   // easystar.setTileCost(1, 2)
   easystar.enableSync(); // required to work
 
-  const mySnakeHead = request.body.you.body[0];
-  console.log("Calculating index of closest food.");
-  const indexOfClosest = findClosestFood(findFoodDistances);
-  console.log("Returned and provided index.");
-  const closestFood = request.body.board.food[indexOfClosest];
-  let nextMove = [];
+  // Need to create array of moves. Function that loops through all food options and then panic mode to finish.
+  // Maybe starts with shortest, if returns null removes from array and tries next shortest, etc..
+  // If length == 0 then activate chasing tail.
 
-  easystar.findPath(
-    mySnakeHead.x,
-    mySnakeHead.y,
-    closestFood.x,
-    closestFood.y,
-    function(path) {
+  function selectMove(calculateClosest, distances) {
+    let nextMove = [];
+    let pathFound = false;
+    const mySnakeHead = request.body.you.body[0];
+
+    let foodMoves = distances();
+
+    while (foodMoves.length > 0 && pathFound == false) {
+      const indexOfClosest = calculateClosest(foodMoves);
+      const closestFood = request.body.board.food[indexOfClosest];
+      easystar.findPath(
+        mySnakeHead.x,
+        mySnakeHead.y,
+        closestFood.x,
+        closestFood.y,
+        function(path) {
+          if (path === null) {
+            console.log(
+              "Could not find path to closest food. Trying next closest."
+            );
+          } else {
+            nextMove = path;
+          }
+        }
+      );
+      easystar.calculate();
+
       if (path === null) {
-        console.log(
-          "Could not find path to closest food. Activate panic mode."
-        );
+        // remove shortest from array, rerun distance and select closest, loop until empty.
+        foodMoves = foodMoves.splice(indexOfClosest, 1);
+        console.log(`Length of array is ${foodMoves.length}`);
       } else {
-        nextMove = path;
+        console.log("Path found, returning nextMove");
+        pathFound = true;
       }
     }
-  );
+    return nextMove;
+  }
 
-  easystar.calculate();
-
+  const theMove = selectMove(findClosestFood, findFoodDistances);
+  const mySnakeHead = request.body.you.body[0];
   // Returns move
-  if (mySnakeHead.x > nextMove[1].x) {
+  if (mySnakeHead.x > theMove[1].x) {
     data.move = "left";
-  } else if (mySnakeHead.x < nextMove[1].x) {
+  } else if (mySnakeHead.x < theMove[1].x) {
     data.move = "right";
-  } else if (mySnakeHead.y < nextMove[1].y) {
+  } else if (mySnakeHead.y < theMove[1].y) {
     data.move = "down";
-  } else if (mySnakeHead.y > nextMove[1].y) {
+  } else if (mySnakeHead.y > theMove[1].y) {
     data.move = "up";
   }
 
