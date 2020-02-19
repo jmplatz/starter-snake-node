@@ -87,8 +87,6 @@ app.post("/move", (request, response) => {
   TODO: Create function that creates expensive tiles around enemy snake heads
   */
 
-  console.table(playingBoard);
-
   // for (let i = 0; i < board.length; i++) {
   //   for (let k = 0; k < board[i].length; k++) {
   //     if (i == 0 || k == 0)
@@ -99,16 +97,16 @@ app.post("/move", (request, response) => {
   // }
 
   function findFoodDistances() {
-    const foodMoveDistances = [];
+    const foodMovesArray = [];
     const foodLocations = request.body.board.food;
 
     for (let i = 0; i < foodLocations.length; i++) {
       let moveDistance =
         Math.abs(mySnakeHead.x - foodLocations[i].x) +
         Math.abs(mySnakeHead.y - foodLocations[i].y);
-      foodMoveDistances.push(moveDistance);
+      foodMovesArray.push(moveDistance);
     }
-    return foodMoveDistances;
+    return foodMovesArray;
   }
 
   function findClosestFood(findFoodDistances) {
@@ -116,9 +114,9 @@ app.post("/move", (request, response) => {
     return closestFood.indexOf(Math.min(...closestFood));
   }
 
-  function decidePath(findFoodDistances) {
+  function decidePath(findFoodDistances, easystar) {
     const playingBoard = createPlayingBoard(drawMySnake, drawOpponents);
-    const easystar = new easystarjs.js();
+    console.table(playingBoard);
     easystar.setGrid(playingBoard);
     easystar.setAcceptableTiles([0]);
     // easystar.setTileCost(1, 2)
@@ -150,8 +148,9 @@ app.post("/move", (request, response) => {
     return nextMove[1];
   }
 
-  const nextMove = decidePath(findFoodDistances);
-
+  const easystar = new easystarjs.js();
+  const nextMove = decidePath(findFoodDistances, easystar);
+  const mySnakeHead = request.body.you.body[0];
   // Returns move
   if (mySnakeHead.x > nextMove.x) {
     data.move = "left";
