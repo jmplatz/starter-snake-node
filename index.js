@@ -129,9 +129,11 @@ app.post("/move", (request, response) => {
     let nextMove = [];
     let pathFound = false;
     const mySnakeHead = request.body.you.body[0];
-    console.log("4. Created empty array, set pathFound to false");
+    console.log(
+      "4. intialize empty move array and pathFound bpoolean to false"
+    );
 
-    let foodMoves = distances();
+    const foodMoves = distances();
     console.log("7. Returned back to selectMove with distance array");
 
     while (foodMoves.length > 0 && pathFound == false) {
@@ -149,7 +151,7 @@ app.post("/move", (request, response) => {
               "Could not find path to closest food. Trying next closest."
             );
             console.log(`Length of array is ${foodMoves.length}`);
-            foodMoves = foodMoves.splice(indexOfClosest, 1);
+            foodMoves.splice(indexOfClosest, 1);
           } else {
             nextMove = path;
             console.log("Path found, returning nextMove");
