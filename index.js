@@ -44,6 +44,7 @@ app.post("/move", (request, response) => {
     move: "up" // default to up
   };
 
+  const mySnakeHead = request.body.you.body[0];
   // const mySnake = {
   //   head: request.body.you.body[0],
   //   body: request.body.you.body.splice(1),
@@ -89,6 +90,7 @@ app.post("/move", (request, response) => {
 
   function findFoodDistances() {
     console.log("5. Entered findFoodDistances()");
+    const mySnakeHead = request.body.you.body[0];
     const foodMovesArray = [];
     const foodLocations = request.body.board.food;
 
@@ -166,7 +168,6 @@ app.post("/move", (request, response) => {
 
   console.log("3. Selecting move");
   const theMove = selectMove(findClosestFood, findFoodDistances);
-  const mySnakeHead = request.body.you.body[0];
   // Returns move
   if (mySnakeHead.x > theMove[1].x) {
     data.move = "left";
