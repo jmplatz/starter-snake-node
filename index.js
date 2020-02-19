@@ -97,6 +97,7 @@ app.post("/move", (request, response) => {
   // }
 
   function findFoodDistances() {
+    console.log("Entered findFoodDistances");
     const foodMovesArray = [];
     const foodLocations = request.body.board.food;
 
@@ -106,59 +107,62 @@ app.post("/move", (request, response) => {
         Math.abs(mySnakeHead.y - foodLocations[i].y);
       foodMovesArray.push(moveDistance);
     }
+    console.log(`returned ${foodMovesArray} to findClosestFood()`);
     return foodMovesArray;
   }
 
-  function findClosestFood(findFoodDistances) {
-    const closestFood = findFoodDistances();
-    return closestFood.indexOf(Math.min(...closestFood));
+  function findClosestFood(findDistances) {
+    console.log("Entered findClosestFood()");
+    const closestFood = findDistances();
+    const index = closestFood.indexOf(Math.min(...closestFood));
+    console.log(`Returned ${index} to main.`);
+    return index;
   }
 
-  function decidePath(findFoodDistances, easystar) {
-    const playingBoard = createPlayingBoard(drawMySnake, drawOpponents);
-    console.table(playingBoard);
-    easystar.setGrid(playingBoard);
-    easystar.setAcceptableTiles([0]);
-    // easystar.setTileCost(1, 2)
-    easystar.enableSync(); // required to work
+  console.log("Board Created");
+  const playingBoard = createPlayingBoard(drawMySnake, drawOpponents);
+  console.table(playingBoard);
 
-    const mySnakeHead = request.body.you.body[0];
-    const indexOfClosest = findClosestFood(findFoodDistances);
-    const closestFood = request.body.board.food[indexOfClosest];
-    let nextMove = [];
-
-    easystar.findPath(
-      mySnakeHead.x,
-      mySnakeHead.y,
-      closestFood.x,
-      closestFood.y,
-      function(path) {
-        if (path === null) {
-          console.log(
-            "Could not find path to closest food. Activate panic mode."
-          );
-        } else {
-          nextMove = path;
-        }
-      }
-    );
-
-    easystar.calculate();
-
-    return nextMove[1];
-  }
-
+  console.log("Initializing easyStar API");
   const easystar = new easystarjs.js();
-  const nextMove = decidePath(findFoodDistances, easystar);
+  easystar.setGrid(playingBoard);
+  easystar.setAcceptableTiles([0]);
+  // easystar.setTileCost(1, 2)
+  easystar.enableSync(); // required to work
+
   const mySnakeHead = request.body.you.body[0];
+  console.log("Calculating index of closest food.");
+  const indexOfClosest = findClosestFood(findFoodDistances);
+  console.log("Returned and provided index.");
+  const closestFood = request.body.board.food[indexOfClosest];
+  let nextMove = [];
+
+  easystar.findPath(
+    mySnakeHead.x,
+    mySnakeHead.y,
+    closestFood.x,
+    closestFood.y,
+    function(path) {
+      if (path === null) {
+        console.log(
+          "Could not find path to closest food. Activate panic mode."
+        );
+      } else {
+        nextMove = path;
+      }
+    }
+  );
+
+  easystar.calculate();
+
   // Returns move
-  if (mySnakeHead.x > nextMove.x) {
+  if (mySnakeHead.x > nextMove[1].x) {
     data.move = "left";
-  } else if (mySnakeHead.x < nextMove.x) {
+  } else if (mySnakeHead.x < nextMove[1].x) {
     data.move = "right";
-  } else if (mySnakeHead.y < nextMove.y) {
+  } else if (mySnakeHead.y < nextMove[1].y) {
     data.move = "down";
-  } else if (mySnakeHead.y > nextMove.y) {
+  } else if (mySnakeHead.y > nextMove[1].y) {
     data.move = "up";
   }
 
