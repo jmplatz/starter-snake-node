@@ -181,12 +181,12 @@ app.post("/move", (request, response) => {
     console.log("5. Entered findFoodDistances()");
     const foodMovesArray = [];
     const mySnakeHead = request.body.you.body[0];
-    const foodLocation = request.body.board.food;
+    const foodLocations = request.body.board.food;
 
-    for (let i = 0; i < foodLocation.length; i++) {
+    for (let i = 0; i < foodLocations.length; i++) {
       let moveDistance =
-        Math.abs(mySnakeHead.x - foodLocation[i].x) + Math.abs(mySnakeHead.y - foodLocation[i].y);
-      if (board[foodLocation[i].y][foodLocationi[i].x] != 1) {
+        Math.abs(mySnakeHead.x - foodLocations[i].x) + Math.abs(mySnakeHead.y - foodLocations[i].y);
+      if (board[foodLocations[i].y][foodLocations[i].x] != 1) {
         foodMovesArray.push(moveDistance);
       }
     }
