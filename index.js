@@ -178,7 +178,7 @@ app.post("/move", (request, response) => {
         foodMovesArray.push(moveDistance);
       }
     }
-    console.log(`6. Outputted array with ${foodMovesArray.length} total moves to selectMove`);
+    console.log(`6. Outputted array with (${foodMovesArray.length}) total moves`);
     return foodMovesArray;
   }
 
@@ -187,7 +187,7 @@ app.post("/move", (request, response) => {
   function findClosestFood(foodArray) {
     console.log("9. Entered findClosestFood()");
     const index = foodArray.indexOf(Math.min(...foodArray));
-    console.log(`10. Outputted the element at index ${index} as closest option.`);
+    console.log(`10. Outputted the element at index (${index}) as closest option.`);
     return index;
   }
 
@@ -198,14 +198,14 @@ app.post("/move", (request, response) => {
     console.log("4. Intializing selectMove Function");
 
     const foodMoves = moveDistances(playingBoard);
-    console.log(`7. Returned back to selectMove with distances array: ${foodMoves}`);
+    console.log(`7. Returned back to selectMove with distances array: (${foodMoves})`);
 
-    while (foodMoves.length > 0 && pathFound == false) {
+    while (foodMoves.length >= 0 && pathFound == false) {
       console.log("8. Entering while loop.");
       const indexOfClosest = calculateClosest(foodMoves);
       const closestFood = request.body.board.food[indexOfClosest];
       easystar.findPath(mySnakeHead.x, mySnakeHead.y, closestFood.x, closestFood.y, function(path) {
-        if (path === null || foodMoves.length == 0) {
+        if (path === null) {
           console.log("LOOP: Could not find path to closest food. Trying next closest.");
           foodMoves.splice(indexOfClosest, 1);
           console.log(`LOOP: Length of food array is now: (${foodMoves.length})`);
