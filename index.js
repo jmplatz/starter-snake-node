@@ -84,6 +84,10 @@ app.post("/move", (request, response) => {
     });
   }
 
+  /* 
+  TODO: Create a function that puts 1's around larger snake's heads
+  */
+
   function checkAdjacentTiles(board) {
     let availableMove = {
       x: null,
@@ -97,27 +101,23 @@ app.post("/move", (request, response) => {
     if (board[mySnakeHead.y][mySnakeHead.x - 1] != 1 && mySnakeHead.x - 1 > 0) {
       availableMove.x = mySnakeHead.x - 1;
       availableMove.y = mySnakeHead.y;
-      console.log("Left Available");
+      console.log("Left is Available");
     } else if (board[mySnakeHead.y - 1][mySnakeHead.x] != 1 && mySnakeHead.y - 1 > 0) {
       availableMove.x = mySnakeHead.x;
       availableMove.y = mySnakeHead.y - 1;
-      console.log("Up Available");
-    } else if (board[mySnakeHead.y][mySnakeHead.x + 1] != 1 && mySnakeHead.x + 1 < boardWidth - 1) {
+      console.log("Up is Available");
+    } else if (board[mySnakeHead.y][mySnakeHead.x + 1] != 1 && mySnakeHead.x + 1 < boardWidth) {
       availableMove.x = mySnakeHead.x + 1;
       availableMove.y = mySnakeHead.y;
-      console.log("Right Available");
+      console.log("Right is Available");
     } else {
       availableMove.x = mySnakeHead.x;
       availableMove.y = mySnakeHead.y + 1;
-      console.log("Down Available");
+      console.log("Down is Available");
     }
 
     return availableMove;
   }
-
-  /* 
-  TODO: Create function that creates expensive tiles around enemy snake heads
-  */
 
   function findFoodDistances() {
     console.log("5. Entered findFoodDistances()");
@@ -133,6 +133,8 @@ app.post("/move", (request, response) => {
     console.log(`6. Outputted array with ${foodMovesArray.length} total moves to selectMove`);
     return foodMovesArray;
   }
+
+  /* FIXME: Need to deal with edge case of two moves with equal distances */
 
   function findClosestFood(foodArray) {
     console.log("9. Entered findClosestFood()");
@@ -173,11 +175,9 @@ app.post("/move", (request, response) => {
         if (path === null) {
           console.log("LOOP: Could not find path to closest food. Trying next closest.");
           foodMoves.splice(indexOfClosest, 1);
-          console.log(`LOOP: Array is now ${foodMoves}`);
-          console.log(`LOOP: Length of array is now ${foodMoves.length}`);
+          console.log(`LOOP: Length of food array is now: (${foodMoves.length})`);
           if (foodMoves.length == 0) {
             const survivalMove = checkAdjacent(playingBoard);
-            console.log(`SURVIVAL MODE: Returned move: ${survivalMove}`);
             nextMove = survivalMove;
             pathFound = true;
           }
