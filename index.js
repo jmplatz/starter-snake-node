@@ -67,7 +67,7 @@ app.post("/move", (request, response) => {
 
     createMySnake(mySnakeBody, board);
     createOpponents(myOpponentSnakes, board);
-    createSnakeHeads(boardWidth, boardHeight, mySnakeBody, myOpponentSnakes, board);
+    createSnakeHeads(myOpponentSnakes);
 
     return board;
   }
@@ -89,26 +89,26 @@ app.post("/move", (request, response) => {
   /* 
   TODO: Create a function that puts 1's around larger snake's heads
   */
-  function drawLargerSnakeHeads(width, height, mySnakeBody, opponents, board) {
-    opponents.forEach(snakes => {
-      snakes.body[0].forEach(head => {
-        if (snakes.body.length >= mySnakeBody.length + 1) {
-          if (head.y + 1 < height) {
-            board[head.y + 1][head.x] = 1;
-          }
-          if (head.y - 1 >= 0) {
-            board[head.y - 1][head.x] = 1;
-          }
-          if (head.x + 1 < width) {
-            board[head.y][head.x + 1] = 1;
-          }
-          if (head.x - 1 >= 0) {
-            board[head.y][head.x - 1] = 1;
-          }
-        }
-      });
-    });
+  function drawLargerSnakeHeads(opponents) {
+    for (const name of opponents) {
+      console.log(name);
+    }
   }
+
+  // if (opponents.body.length >= mySnakeBody.length + 1) {
+  //   if (head.y + 1 < height) {
+  //     board[head.y + 1][head.x] = 1;
+  //   }
+  //   if (head.y - 1 >= 0) {
+  //     board[head.y - 1][head.x] = 1;
+  //   }
+  //   if (head.x + 1 < width) {
+  //     board[head.y][head.x + 1] = 1;
+  //   }
+  //   if (head.x - 1 >= 0) {
+  //     board[head.y][head.x - 1] = 1;
+  //   }
+  // }
 
   function checkAdjacentTiles(board) {
     let availableMove = {
@@ -166,19 +166,6 @@ app.post("/move", (request, response) => {
     return index;
   }
 
-  // TODO: Place these into an initialize function?
-  console.log(`Turn ${request.body.turn}`);
-  console.log("1. Board Created");
-  const playingBoard = createPlayingBoard(drawMySnake, drawOpponents, drawLargerSnakeHeads);
-
-  console.log("2. Initializing easyStar API");
-  const easystar = new easystarjs.js();
-  console.table(playingBoard);
-  easystar.setGrid(playingBoard);
-  easystar.setAcceptableTiles([0]);
-  // easystar.setTileCost(1, 2)
-  easystar.enableSync(); // required to work
-
   function selectMove(calculateClosest, distances, checkAdjacent) {
     let nextMove = [];
     let pathFound = false;
@@ -212,6 +199,19 @@ app.post("/move", (request, response) => {
     }
     return nextMove;
   }
+
+  // TODO: Place these into an initialize function?
+  console.log(`Turn ${request.body.turn}`);
+  console.log("1. Board Created");
+  const playingBoard = createPlayingBoard(drawMySnake, drawOpponents, drawLargerSnakeHeads);
+
+  console.log("2. Initializing easyStar API");
+  const easystar = new easystarjs.js();
+  console.table(playingBoard);
+  easystar.setGrid(playingBoard);
+  easystar.setAcceptableTiles([0]);
+  // easystar.setTileCost(1, 2)
+  easystar.enableSync(); // required to work
 
   // TODO: Place this into a move function
   console.log("3. Selecting move");
