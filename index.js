@@ -90,8 +90,8 @@ app.post("/move", (request, response) => {
   TODO: Create a function that puts 1's around larger snake's heads
   */
   function drawLargerSnakeHeads(opponents) {
-    for (const name of opponents) {
-      console.log(name);
+    for (const snake of opponents) {
+      console.log(snake.body[0]);
     }
   }
 
