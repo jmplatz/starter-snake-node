@@ -65,7 +65,7 @@ app.post("/move", (request, response) => {
     const myOpponentSnakes = request.body.board.snakes;
 
     createMySnake(mySnakeBody, board);
-    createOpponents(myOpponentSnakes, board);
+    createOpponents(myOpponentSnakes, mySnakeBody, board);
 
     return board;
   }
@@ -76,8 +76,25 @@ app.post("/move", (request, response) => {
     });
   }
 
-  function drawOpponents(opponentSnakeBodies, board) {
+  function drawOpponents(opponentSnakeBodies, mySnakeBody, board) {
+    const boardHeight = request.body.board.height;
+    const boardWidth = request.body.board.width;
+
     opponentSnakeBodies.forEach(snakes => {
+      if (snakes.body.length >= mySnakeBody.length + 1) {
+        if (snakes.body[0].y + 1 < boardHeight) {
+          board[snakes.body.y + 1][snakes.body.x] = 1;
+        }
+        if (snakes.body[0].y - 1 >= 0) {
+          board[snakes.body.y - 1][snakes.body.x] = 1;
+        }
+        if (snakes.body[0].x + 1 < boardWidth) {
+          board[snakes.body.y][snakes.body.x + 1] = 1;
+        }
+        if (snakes.body[0].x - 1 >= 0) {
+          board[snakes.body.y][snakes.body.x - 1] = 1;
+        }
+      }
       snakes.body.forEach(element => {
         board[element.y][element.x] = 1;
       });
@@ -97,7 +114,8 @@ app.post("/move", (request, response) => {
     const mySnakeHead = request.body.you.body[0];
     const boardWidth = request.body.board.width;
 
-    console.log("SURVIVAL MODE: Invoked checkAdjacentTiles()");
+    // FIXME: Need to add edge case of picking "safe" option that kills snake 1-2 turns later
+    console.log("SURVIVAL MODE: Checking available tiles");
     if (board[mySnakeHead.y][mySnakeHead.x - 1] != 1 && mySnakeHead.x - 1 > 0) {
       availableMove.x = mySnakeHead.x - 1;
       availableMove.y = mySnakeHead.y;
@@ -139,24 +157,22 @@ app.post("/move", (request, response) => {
   function findClosestFood(foodArray) {
     console.log("9. Entered findClosestFood()");
     const index = foodArray.indexOf(Math.min(...foodArray));
-    console.log(`10. Outputted the element at index ${index} as closest.`);
+    console.log(`10. Outputted the element at index ${index} as closest option.`);
     return index;
   }
 
+  // TODO: Place these into an initialize function?
   console.log(`Turn ${request.body.turn}`);
   console.log("1. Board Created");
   const playingBoard = createPlayingBoard(drawMySnake, drawOpponents);
 
   console.log("2. Initializing easyStar API");
   const easystar = new easystarjs.js();
+  console.table(playingBoard);
   easystar.setGrid(playingBoard);
   easystar.setAcceptableTiles([0]);
   // easystar.setTileCost(1, 2)
   easystar.enableSync(); // required to work
-
-  // Need to create array of moves. Function that loops through all food options and then panic mode to finish.
-  // Maybe starts with shortest, if returns null removes from array and tries next shortest, etc..
-  // If length == 0 then activate chasing tail.
 
   function selectMove(calculateClosest, distances, checkAdjacent) {
     let nextMove = [];
@@ -192,11 +208,12 @@ app.post("/move", (request, response) => {
     return nextMove;
   }
 
+  // TODO: Place this into a move function
   console.log("3. Selecting move");
   const theMove = selectMove(findClosestFood, findFoodDistances, checkAdjacentTiles);
 
   // Returns move
-  console.log(`Submitted move: ${theMove.x},  ${theMove.y}`);
+  console.log(`Submitted move: ${theMove.x}, ${theMove.y}`);
   if (mySnakeHead.x > theMove.x) {
     data.move = "left";
     console.log("Chose Left");
@@ -210,8 +227,6 @@ app.post("/move", (request, response) => {
     data.move = "down";
     console.log("Chose Down");
   }
-
-  console.log(`FINAL: move was ${data.move}`);
 
   return response.json(data);
 });
