@@ -118,12 +118,13 @@ app.post("/move", (request, response) => {
       // if both food.x +/- 1 == 1, make y +/- 1 also == 1
       if (food.x - 1 >= 0 && board[food.y][food.x - 1] == 1) {
         if (food.x + 1 < width && board[food.y][food.x + 1] == 1) {
-          if (food.y + 1 < height) {
-            board[food.y + 1][food.x] = 1;
-          }
-          if (food.y - 1 >= 0) {
-            board[food.y - 1][food.x] = 1;
-          }
+          // if (food.y + 1 < height) {
+          //   board[food.y + 1][food.x] = 1;
+          // }
+          // if (food.y - 1 >= 0) {
+          //   board[food.y - 1][food.x] = 1;
+          // }
+          board[food.y][food.x] = 1;
           console.log(`Made food at ${food.x}, ${food.y} unavailable`);
         }
       }
@@ -131,12 +132,13 @@ app.post("/move", (request, response) => {
       // Same for food.x's
       if (food.y - 1 >= 0 && board[food.y - 1][food.x] == 1) {
         if (food.y + 1 < height && board[food.y + 1][food.x] == 1) {
-          if (food.x + 1 < width) {
-            board[food.y][food.x + 1] = 1;
-          }
-          if (food.x - 1 >= 0) {
-            board[food.y][food.x - 1] = 1;
-          }
+          // if (food.x + 1 < width) {
+          //   board[food.y][food.x + 1] = 1;
+          // }
+          // if (food.x - 1 >= 0) {
+          //   board[food.y][food.x - 1] = 1;
+          // }
+          board[food.y][food.x] = 1;
           console.log(`Made food at ${food.x}, ${food.y} unavailable`);
         }
       }
@@ -175,16 +177,19 @@ app.post("/move", (request, response) => {
     return availableMove;
   }
 
-  function findFoodDistances() {
+  function findFoodDistances(board) {
     console.log("5. Entered findFoodDistances()");
     const mySnakeHead = request.body.you.body[0];
     const foodMovesArray = [];
     const foodLocations = request.body.board.food;
 
     for (let i = 0; i < foodLocations.length; i++) {
-      let moveDistance =
-        Math.abs(mySnakeHead.x - foodLocations[i].x) + Math.abs(mySnakeHead.y - foodLocations[i].y);
-      foodMovesArray.push(moveDistance);
+      if (board[foodLocations.y][foodLocations.x] != 1) {
+        let moveDistance =
+          Math.abs(mySnakeHead.x - foodLocations[i].x) +
+          Math.abs(mySnakeHead.y - foodLocations[i].y);
+        foodMovesArray.push(moveDistance);
+      }
     }
     console.log(`6. Outputted array with ${foodMovesArray.length} total moves to selectMove`);
     return foodMovesArray;
@@ -199,13 +204,13 @@ app.post("/move", (request, response) => {
     return index;
   }
 
-  function selectMove(calculateClosest, distances, checkAdjacent) {
+  function selectMove(calculateClosest, moveDistances, checkAdjacent) {
     let nextMove = [];
     let pathFound = false;
     const mySnakeHead = request.body.you.body[0];
     console.log("4. Intializing selectMove Function");
 
-    const foodMoves = distances();
+    const foodMoves = moveDistances(playingBoard);
     console.log(`7. Returned back to selectMove with distances array: ${foodMoves}`);
 
     while (foodMoves.length > 0 && pathFound == false) {
