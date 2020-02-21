@@ -41,7 +41,7 @@ app.post("/start", (request, response) => {
 // Handle POST request to '/move'
 app.post("/move", (request, response) => {
   const data = {
-    move: ""
+    move: "up"
   };
 
   const mySnakeHead = request.body.you.body[0];
@@ -85,17 +85,18 @@ app.post("/move", (request, response) => {
   }
 
   function checkAdjacentTiles(board) {
-    let availableMove;
+    let availableMove = [];
+    const boardWidth = request.body.board.width;
     const left = [mySnakeHead.y, mySnakeHead.x - 1];
     const up = [mySnakeHead.y - 1, mySnakeHead.x];
     const right = [mySnakeHead.y, mySnakeHead.x + 1];
     const down = [mySnakeHead.y + 1, mySnakeHead.x];
 
-    if (board[mySnakeHead.y][mySnakeHead.x - 1] != 1) {
+    if (board[mySnakeHead.y][mySnakeHead.x - 1] != 1 && mySnakeHead.x - 1 > 0) {
       availableMove = left;
-    } else if (board[mySnakeHead.y - 1][mySnakeHead.x] != 1) {
+    } else if (board[mySnakeHead.y - 1][mySnakeHead.x] != 1 && mySnakeHead.y - 1 > 0) {
       availableMove = up;
-    } else if (board[mySnakeHead.y][mySnakeHead.x + 1] != 1) {
+    } else if (board[mySnakeHead.y][mySnakeHead.x + 1] != 1 && mySnakeHead.x + 1 < boardWidth - 1) {
       availableMove = right;
     } else availableMove = down;
 
@@ -114,13 +115,10 @@ app.post("/move", (request, response) => {
 
     for (let i = 0; i < foodLocations.length; i++) {
       let moveDistance =
-        Math.abs(mySnakeHead.x - foodLocations[i].x) +
-        Math.abs(mySnakeHead.y - foodLocations[i].y);
+        Math.abs(mySnakeHead.x - foodLocations[i].x) + Math.abs(mySnakeHead.y - foodLocations[i].y);
       foodMovesArray.push(moveDistance);
     }
-    console.log(
-      `6. Outputted array with ${foodMovesArray.length} total moves to selectMove`
-    );
+    console.log(`6. Outputted array with ${foodMovesArray.length} total moves to selectMove`);
     return foodMovesArray;
   }
 
@@ -152,54 +150,40 @@ app.post("/move", (request, response) => {
     console.log("4. Intializing selectMove Function");
 
     const foodMoves = distances();
-    console.log(
-      `7. Returned back to selectMove with distances array: ${foodMoves}`
-    );
+    console.log(`7. Returned back to selectMove with distances array: ${foodMoves}`);
 
     while (foodMoves.length > 0 && pathFound == false) {
       console.log("8. Entering while loop.");
       const indexOfClosest = calculateClosest(foodMoves);
       const closestFood = request.body.board.food[indexOfClosest];
-      easystar.findPath(
-        mySnakeHead.x,
-        mySnakeHead.y,
-        closestFood.x,
-        closestFood.y,
-        function(path) {
-          if (path === null) {
-            console.log(
-              "LOOP: Could not find path to closest food. Trying next closest."
-            );
-            foodMoves.splice(indexOfClosest, 1);
-            console.log(`LOOP: Length of array is now ${foodMoves.length}`);
-            if (foodMoves.length == 0) {
-              console.log("Invoked checkAdjacentTiles()");
-              const survivalMove = checkAdjacent(playingBoard);
-              console.log(`Returned survial move: ${survivalMove}`);
-              nextMove = survivalMove;
-              pathFound = true;
-            }
-          } else {
-            nextMove = path[1];
-            console.log("Path found, returning nextMove");
+      easystar.findPath(mySnakeHead.x, mySnakeHead.y, closestFood.x, closestFood.y, function(path) {
+        if (path === null) {
+          console.log("LOOP: Could not find path to closest food. Trying next closest.");
+          foodMoves.splice(indexOfClosest, 1);
+          console.log(`LOOP: Length of array is now ${foodMoves.length}`);
+          if (foodMoves.length == 0) {
+            console.log("SURVIVAL MODE: Invoked checkAdjacentTiles()");
+            const survivalMove = checkAdjacent(playingBoard);
+            console.log(`SURVIVAL MODE: Returned move: ${survivalMove}`);
+            nextMove = survivalMove;
             pathFound = true;
           }
+        } else {
+          nextMove = path[1];
+          console.log(`Path found, returning nextMove: ${nextMove}`);
+          pathFound = true;
         }
-      );
+      });
       easystar.calculate();
     }
     return nextMove;
   }
 
   console.log("3. Selecting move");
-  const theMove = selectMove(
-    findClosestFood,
-    findFoodDistances,
-    checkAdjacentTiles
-  );
+  const theMove = selectMove(findClosestFood, findFoodDistances, checkAdjacentTiles);
 
   // Returns move
-  console.log("Submitted move.");
+  console.log(`Submitted move: ${theMove}`);
   if (mySnakeHead.x > theMove.x) {
     data.move = "left";
   } else if (mySnakeHead.y > theMove.y) {
@@ -209,6 +193,8 @@ app.post("/move", (request, response) => {
   } else if (mySnakeHead.y < theMove.y) {
     data.move = "down";
   }
+
+  console.log(`FINAL: move was ${data.move}`);
 
   return response.json(data);
 });
