@@ -85,28 +85,30 @@ app.post("/move", (request, response) => {
   }
 
   function checkAdjacentTiles(board) {
-    let availableMove = [];
+    let availableMove = {
+      x: null,
+      y: null
+    };
 
     const mySnakeHead = request.body.you.body[0];
     const boardWidth = request.body.board.width;
 
-    const left = [mySnakeHead.y, mySnakeHead.x - 1];
-    const up = [mySnakeHead.y - 1, mySnakeHead.x];
-    const right = [mySnakeHead.y, mySnakeHead.x + 1];
-    const down = [mySnakeHead.y + 1, mySnakeHead.x];
-
     console.log("SURVIVAL MODE: Invoked checkAdjacentTiles()");
     if (board[mySnakeHead.y][mySnakeHead.x - 1] != 1 && mySnakeHead.x - 1 > 0) {
-      availableMove = left;
+      availableMove.x = mySnakeHead.x - 1;
+      availableMove.y = mySnakeHead.y;
       console.log("Left Available");
     } else if (board[mySnakeHead.y - 1][mySnakeHead.x] != 1 && mySnakeHead.y - 1 > 0) {
-      availableMove = up;
+      availableMove.x = mySnakeHead.x;
+      availableMove.y = mySnakeHead.y - 1;
       console.log("Up Available");
     } else if (board[mySnakeHead.y][mySnakeHead.x + 1] != 1 && mySnakeHead.x + 1 < boardWidth - 1) {
-      availableMove = right;
+      availableMove.x = mySnakeHead.x + 1;
+      availableMove.y = mySnakeHead.y;
       console.log("Right Available");
     } else {
-      availableMove = down;
+      availableMove.x = mySnakeHead.x;
+      availableMove.y = mySnakeHead.y + 1;
       console.log("Down Available");
     }
 
