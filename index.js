@@ -186,9 +186,12 @@ app.post("/move", (request, response) => {
 
   function findClosestFood(foodArray) {
     console.log("9. Entered findClosestFood()");
-    const index = foodArray.indexOf(Math.min(...foodArray));
-    console.log(`10. Outputted the element at index (${index}) as closest option.`);
-    return index;
+    if (foodArray.length == 0) return 0;
+    else {
+      const index = foodArray.indexOf(Math.min(...foodArray));
+      console.log(`10. Outputted the element at index (${index}) as closest option.`);
+      return index;
+    }
   }
 
   function selectMove(calculateClosest, moveDistances, checkAdjacent) {
