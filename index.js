@@ -112,25 +112,35 @@ app.post("/move", (request, response) => {
 
     for (const food of foodLocations) {
       // if both food.x +/- 1 == 1, make y +/- 1 also == 1
-      if (board[food.y][food.x - 1] == 1 && board[food.y][food.x + 1] == 1) {
+      if (
+        food.x - 1 >= 0 &&
+        board[food.y][food.x - 1] == 1 &&
+        food.x + 1 < width &&
+        board[food.y][food.x + 1] == 1
+      ) {
         if (food.y + 1 < height) {
           board[food.y + 1][food.x] = 1;
         }
         if (food.y - 1 >= 0) {
           board[food.y - 1][food.x] = 1;
         }
-        console.log(`Made food at ${food.x}, ${food.y}`);
+        console.log(`Made food at ${food.x}, ${food.y} unavailable`);
       }
 
       // Same for food.y's
-      if (board[food.y - 1][food.x] == 1 && board[food.y + 1][food.x] == 1) {
+      if (
+        food.y - 1 >= 0 &&
+        board[food.y - 1][food.x] == 1 &&
+        food.y + 1 < height &&
+        board[food.y + 1][food.x] == 1
+      ) {
         if (food.x + 1 < width) {
           board[food.y][food.x + 1] = 1;
         }
         if (food.x - 1 >= 0) {
           board[food.y][food.x - 1] = 1;
         }
-        console.log(`Made food at ${food.x}, ${food.y}`);
+        console.log(`Made food at ${food.x}, ${food.y} unavailable`);
       }
     }
   }
