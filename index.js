@@ -63,11 +63,12 @@ app.post("/move", (request, response) => {
 
     const mySnake = request.body.you.body;
     const mySnakeBody = mySnake.splice(1);
+    const mySnakeName = request.body.you.name;
     const myOpponentSnakes = request.body.board.snakes;
 
     createMySnake(mySnakeBody, board);
     createOpponents(myOpponentSnakes, board);
-    createSnakeHeads(myOpponentSnakes, mySnakeBody);
+    createSnakeHeads(myOpponentSnakes, mySnakeBody, mySnakeName);
 
     return board;
   }
@@ -89,9 +90,10 @@ app.post("/move", (request, response) => {
   /* 
   TODO: Create a function that puts 1's around larger snake's heads
   */
-  function drawLargerSnakeHeads(opponents, mySnakeBody) {
+  function drawLargerSnakeHeads(opponents, mySnakeBody, mySnakeName) {
     for (const snake of opponents) {
-      if (snake.body.length >= mySnakeBody.length + 1) console.log(snake.name);
+      if (snake.body.length >= mySnakeBody.length + 1 && snake.name != mySnakeName)
+        console.log(snake.name);
     }
   }
 
