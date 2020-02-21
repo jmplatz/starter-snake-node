@@ -118,12 +118,6 @@ app.post("/move", (request, response) => {
       // if both food.x +/- 1 == 1, make y +/- 1 also == 1
       if (food.x - 1 >= 0 && board[food.y][food.x - 1] == 1) {
         if (food.x + 1 < width && board[food.y][food.x + 1] == 1) {
-          // if (food.y + 1 < height) {
-          //   board[food.y + 1][food.x] = 1;
-          // }
-          // if (food.y - 1 >= 0) {
-          //   board[food.y - 1][food.x] = 1;
-          // }
           board[food.y][food.x] = 1;
           console.log(`Made food at ${food.x}, ${food.y} unavailable`);
         }
@@ -132,12 +126,6 @@ app.post("/move", (request, response) => {
       // Same for food.x's
       if (food.y - 1 >= 0 && board[food.y - 1][food.x] == 1) {
         if (food.y + 1 < height && board[food.y + 1][food.x] == 1) {
-          // if (food.x + 1 < width) {
-          //   board[food.y][food.x + 1] = 1;
-          // }
-          // if (food.x - 1 >= 0) {
-          //   board[food.y][food.x - 1] = 1;
-          // }
           board[food.y][food.x] = 1;
           console.log(`Made food at ${food.x}, ${food.y} unavailable`);
         }
@@ -217,7 +205,7 @@ app.post("/move", (request, response) => {
       const indexOfClosest = calculateClosest(foodMoves);
       const closestFood = request.body.board.food[indexOfClosest];
       easystar.findPath(mySnakeHead.x, mySnakeHead.y, closestFood.x, closestFood.y, function(path) {
-        if (path === null) {
+        if (path === null || foodMoves.length == 0) {
           console.log("LOOP: Could not find path to closest food. Trying next closest.");
           foodMoves.splice(indexOfClosest, 1);
           console.log(`LOOP: Length of food array is now: (${foodMoves.length})`);
