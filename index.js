@@ -52,7 +52,7 @@ app.post("/move", (request, response) => {
   // };
 
   // Draw 2D Array with obstacles
-  function createPlayingBoard(createMySnake, createOpponents, createSnakeHeads) {
+  function createPlayingBoard(createMySnake, createOpponents, createSnakeHeads, dangerousFood) {
     // createSnakeHeads
     const boardHeight = request.body.board.height;
     const boardWidth = request.body.board.width;
@@ -69,7 +69,7 @@ app.post("/move", (request, response) => {
     createMySnake(mySnakeBody, board);
     createOpponents(myOpponentSnakes, board);
     createSnakeHeads(myOpponentSnakes, mySnakeBody, mySnakeName, boardHeight, boardWidth, board);
-
+    dangerousFood(height, width, board);
     return board;
   }
 
@@ -87,9 +87,6 @@ app.post("/move", (request, response) => {
     });
   }
 
-  /* 
-  TODO: Create a function that puts 1's around larger snake's heads
-  */
   function drawLargerSnakeHeads(opponents, myBody, myName, height, width, board) {
     for (const snake of opponents) {
       if (snake.body.length >= myBody.length + 1 && snake.name != myName) {
@@ -109,6 +106,27 @@ app.post("/move", (request, response) => {
     }
   }
 
+  // TODO: Need to implement function that prevents targetting food that kills me 1-2 turns later
+  function removeDangerousFood(height, width, board) {
+    const foodLocations = request.body.board.food;
+
+    foodLocations.forEach(food => {
+      // if both food.x +/- 1 == 1, make y +/- 1 also == 1
+      if (board[food.y][food.x - 1] == 1 && board[food.y][food.x + 1] == 1) {
+        if (food.y + 1 < height) board[food.y + 1][food.x] = 1;
+        if (food.y - 1 >= 0) board[food.y - 1][food.x] = 1;
+        console.log(`Made food at ${food.x}, ${food.y}`);
+      }
+
+      // Same for food.y's
+      if (board[food.y - 1][food.x] == 1 && board[food.y + 1][food.x] == 1) {
+        if (food.x + 1 < width) board[food.y][food.x + 1] = 1;
+        if (food.x - 1 >= 0) board[food.y][food.x - 1] = 1;
+        console.log(`Made food at ${food.x}, ${food.y}`);
+      }
+    });
+  }
+
   function checkAdjacentTiles(board) {
     let availableMove = {
       x: null,
@@ -118,7 +136,7 @@ app.post("/move", (request, response) => {
     const mySnakeHead = request.body.you.body[0];
     const boardWidth = request.body.board.width;
 
-    // FIXME: Need to add edge case of picking "safe" option that kills snake 1-2 turns later
+    // FIXME: Need to add edge case of picking a "safe" option that won't kill me 1-2 turns later
     console.log("SURVIVAL MODE: Checking available tiles");
     if (board[mySnakeHead.y][mySnakeHead.x - 1] != 1 && mySnakeHead.x - 1 > 0) {
       availableMove.x = mySnakeHead.x - 1;
@@ -156,7 +174,7 @@ app.post("/move", (request, response) => {
     return foodMovesArray;
   }
 
-  /* FIXME: Need to deal with edge case of two moves with equal distances */
+  /* FIXME: Need to deal with edge case of two moves with equal distances, might be removing incorrect one from array? */
 
   function findClosestFood(foodArray) {
     console.log("9. Entered findClosestFood()");
@@ -202,7 +220,12 @@ app.post("/move", (request, response) => {
   // TODO: Place these into an initialize function?
   console.log(`Turn ${request.body.turn}`);
   console.log("1. Board Created");
-  const playingBoard = createPlayingBoard(drawMySnake, drawOpponents, drawLargerSnakeHeads);
+  const playingBoard = createPlayingBoard(
+    drawMySnake,
+    drawOpponents,
+    drawLargerSnakeHeads,
+    removeDangerousFood
+  );
 
   console.log("2. Initializing easyStar API");
   const easystar = new easystarjs.js();
