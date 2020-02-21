@@ -110,21 +110,29 @@ app.post("/move", (request, response) => {
   function removeDangerousFood(height, width, board) {
     const foodLocations = request.body.board.food;
 
-    foodLocations.forEach(food => {
+    for (const food of foodLocations) {
       // if both food.x +/- 1 == 1, make y +/- 1 also == 1
       if (board[food.y][food.x - 1] == 1 && board[food.y][food.x + 1] == 1) {
-        if (food.y + 1 < height) board[food.y + 1][food.x] = 1;
-        if (food.y - 1 >= 0) board[food.y - 1][food.x] = 1;
+        if (food.y + 1 < height) {
+          board[food.y + 1][food.x] = 1;
+        }
+        if (food.y - 1 >= 0) {
+          board[food.y - 1][food.x] = 1;
+        }
         console.log(`Made food at ${food.x}, ${food.y}`);
       }
 
       // Same for food.y's
       if (board[food.y - 1][food.x] == 1 && board[food.y + 1][food.x] == 1) {
-        if (food.x + 1 < width) board[food.y][food.x + 1] = 1;
-        if (food.x - 1 >= 0) board[food.y][food.x - 1] = 1;
+        if (food.x + 1 < width) {
+          board[food.y][food.x + 1] = 1;
+        }
+        if (food.x - 1 >= 0) {
+          board[food.y][food.x - 1] = 1;
+        }
         console.log(`Made food at ${food.x}, ${food.y}`);
       }
-    });
+    }
   }
 
   function checkAdjacentTiles(board) {
@@ -219,20 +227,20 @@ app.post("/move", (request, response) => {
 
   // TODO: Place these into an initialize function?
   console.log(`Turn ${request.body.turn}`);
-  console.log("1. Board Created");
+
+  console.log("1. Creating Board");
   const playingBoard = createPlayingBoard(
     drawMySnake,
     drawOpponents,
     drawLargerSnakeHeads,
     removeDangerousFood
   );
+  console.log("2. Board Created");
 
-  console.log("2. Initializing easyStar API");
   const easystar = new easystarjs.js();
   console.table(playingBoard);
   easystar.setGrid(playingBoard);
   easystar.setAcceptableTiles([0]);
-  // easystar.setTileCost(1, 2)
   easystar.enableSync(); // required to work
 
   // TODO: Place this into a move function
@@ -240,7 +248,7 @@ app.post("/move", (request, response) => {
   const theMove = selectMove(findClosestFood, findFoodDistances, checkAdjacentTiles);
 
   // Returns move
-  console.log(`Submitted move: ${theMove.x}, ${theMove.y}`);
+  console.log(`Move Selected: ${theMove.x}, ${theMove.y}`);
   if (mySnakeHead.x > theMove.x) {
     data.move = "left";
     console.log("Chose Left");
