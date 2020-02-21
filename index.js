@@ -52,7 +52,7 @@ app.post("/move", (request, response) => {
   // };
 
   // Draw 2D Array with obstacles
-  function createPlayingBoard(createMySnake, createOpponents) {
+  function createPlayingBoard(createMySnake, createOpponents, createSnakeHeads) {
     const boardHeight = request.body.board.height;
     const boardWidth = request.body.board.width;
 
@@ -63,9 +63,11 @@ app.post("/move", (request, response) => {
     const mySnake = request.body.you.body;
     const mySnakeBody = mySnake.splice(1);
     const myOpponentSnakes = request.body.board.snakes;
+    const opponentSnakeHeads = request.body.board.snakes.body[0];
 
     createMySnake(mySnakeBody, board);
     createOpponents(myOpponentSnakes, board);
+    createSnakeHeads(boardWidth, boardHeight, mySnakeBody, opponentSnakeHeads, board);
 
     return board;
   }
@@ -87,25 +89,24 @@ app.post("/move", (request, response) => {
   /* 
   TODO: Create a function that puts 1's around larger snake's heads
   */
-  // function drawLargerSnakeHeads() {
-  //   const boardHeight = request.body.board.height;
-  //   const boardWidth = request.body.board.width;
-
-  //   if (snakes.body.length >= mySnakeBody.length + 1) {
-  //     if (snakes.body[0].y + 1 < boardHeight) {
-  //       board[snakes.body.y + 1][snakes.body.x] = 1;
-  //     }
-  //     if (snakes.body[0].y - 1 >= 0) {
-  //       board[snakes.body.y - 1][snakes.body.x] = 1;
-  //     }
-  //     if (snakes.body[0].x + 1 < boardWidth) {
-  //       board[snakes.body.y][snakes.body.x + 1] = 1;
-  //     }
-  //     if (snakes.body[0].x - 1 >= 0) {
-  //       board[snakes.body.y][snakes.body.x - 1] = 1;
-  //     }
-  //   }
-  // }
+  function drawLargerSnakeHeads(width, height, mySnakeBody, snakeHeads, board) {
+    snakeHeads.forEach(head => {
+      if (head.length >= mySnakeBody.length + 1) {
+        if (head.y + 1 < height) {
+          board[head.y + 1][head.x] = 1;
+        }
+        if (head.y - 1 >= 0) {
+          board[head.y - 1][head.x] = 1;
+        }
+        if (head.x + 1 < width) {
+          board[head.y][head.x + 1] = 1;
+        }
+        if (head.x - 1 >= 0) {
+          board[head.y][head.x - 1] = 1;
+        }
+      }
+    });
+  }
 
   function checkAdjacentTiles(board) {
     let availableMove = {
@@ -166,7 +167,7 @@ app.post("/move", (request, response) => {
   // TODO: Place these into an initialize function?
   console.log(`Turn ${request.body.turn}`);
   console.log("1. Board Created");
-  const playingBoard = createPlayingBoard(drawMySnake, drawOpponents);
+  const playingBoard = createPlayingBoard(drawMySnake, drawOpponents, drawLargerSnakeHeads);
 
   console.log("2. Initializing easyStar API");
   const easystar = new easystarjs.js();
