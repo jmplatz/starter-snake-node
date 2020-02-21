@@ -194,15 +194,19 @@ app.post("/move", (request, response) => {
   const theMove = selectMove(findClosestFood, findFoodDistances, checkAdjacentTiles);
 
   // Returns move
-  console.log(`Submitted move: ${theMove[0]}, ${theMove[1]}`);
-  if (mySnakeHead.x > theMove[1]) {
+  console.log(`Submitted move: ${theMove.x},  ${theMove.y}`);
+  if (mySnakeHead.x > theMove.x) {
     data.move = "left";
-  } else if (mySnakeHead.y > theMove[0]) {
+    console.log("Chose Left");
+  } else if (mySnakeHead.y > theMove.y) {
     data.move = "up";
-  } else if (mySnakeHead.x < theMove[1]) {
+    console.log("Chose Up");
+  } else if (mySnakeHead.x < theMove.x) {
     data.move = "right";
-  } else if (mySnakeHead.y < theMove[0]) {
+    console.log("Chose Right");
+  } else if (mySnakeHead.y < theMove.y) {
     data.move = "down";
+    console.log("Chose Down");
   }
 
   console.log(`FINAL: move was ${data.move}`);
