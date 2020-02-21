@@ -92,13 +92,20 @@ app.post("/move", (request, response) => {
     const right = [mySnakeHead.y, mySnakeHead.x + 1];
     const down = [mySnakeHead.y + 1, mySnakeHead.x];
 
+    console.log("SURVIVAL MODE: Invoked checkAdjacentTiles()");
     if (board[mySnakeHead.y][mySnakeHead.x - 1] != 1 && mySnakeHead.x - 1 > 0) {
       availableMove = left;
+      console.log("Left Available");
     } else if (board[mySnakeHead.y - 1][mySnakeHead.x] != 1 && mySnakeHead.y - 1 > 0) {
       availableMove = up;
+      console.log("Up Available");
     } else if (board[mySnakeHead.y][mySnakeHead.x + 1] != 1 && mySnakeHead.x + 1 < boardWidth - 1) {
       availableMove = right;
-    } else availableMove = down;
+      console.log("Right Available");
+    } else {
+      availableMove = down;
+      console.log("Down Available");
+    }
 
     return availableMove;
   }
@@ -160,9 +167,9 @@ app.post("/move", (request, response) => {
         if (path === null) {
           console.log("LOOP: Could not find path to closest food. Trying next closest.");
           foodMoves.splice(indexOfClosest, 1);
+          console.log(`LOOP: Array is now ${foodMoves}`);
           console.log(`LOOP: Length of array is now ${foodMoves.length}`);
           if (foodMoves.length == 0) {
-            console.log("SURVIVAL MODE: Invoked checkAdjacentTiles()");
             const survivalMove = checkAdjacent(playingBoard);
             console.log(`SURVIVAL MODE: Returned move: ${survivalMove}`);
             nextMove = survivalMove;
@@ -170,7 +177,7 @@ app.post("/move", (request, response) => {
           }
         } else {
           nextMove = path[1];
-          console.log(`Path found, returning nextMove: ${nextMove}`);
+          console.log(`Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`);
           pathFound = true;
         }
       });
@@ -179,11 +186,12 @@ app.post("/move", (request, response) => {
     return nextMove;
   }
 
+  console.log(`Turn ${request.body.turn}`);
   console.log("3. Selecting move");
   const theMove = selectMove(findClosestFood, findFoodDistances, checkAdjacentTiles);
 
   // Returns move
-  console.log(`Submitted move: ${theMove}`);
+  console.log(`Submitted move: ${theMove.x},${theMove.y}`);
   if (mySnakeHead.x > theMove.x) {
     data.move = "left";
   } else if (mySnakeHead.y > theMove.y) {
