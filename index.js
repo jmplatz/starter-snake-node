@@ -53,6 +53,7 @@ app.post("/move", (request, response) => {
 
   // Draw 2D Array with obstacles
   function createPlayingBoard(createMySnake, createOpponents, createSnakeHeads) {
+    // createSnakeHeads
     const boardHeight = request.body.board.height;
     const boardWidth = request.body.board.width;
 
@@ -63,11 +64,10 @@ app.post("/move", (request, response) => {
     const mySnake = request.body.you.body;
     const mySnakeBody = mySnake.splice(1);
     const myOpponentSnakes = request.body.board.snakes;
-    const opponentSnakeHeads = request.body.board.snakes.body[0];
 
     createMySnake(mySnakeBody, board);
     createOpponents(myOpponentSnakes, board);
-    createSnakeHeads(boardWidth, boardHeight, mySnakeBody, opponentSnakeHeads, board);
+    createSnakeHeads(boardWidth, boardHeight, mySnakeBody, myOpponentSnakes, board);
 
     return board;
   }
@@ -89,22 +89,24 @@ app.post("/move", (request, response) => {
   /* 
   TODO: Create a function that puts 1's around larger snake's heads
   */
-  function drawLargerSnakeHeads(width, height, mySnakeBody, snakeHeads, board) {
-    snakeHeads.forEach(head => {
-      if (head.length >= mySnakeBody.length + 1) {
-        if (head.y + 1 < height) {
-          board[head.y + 1][head.x] = 1;
+  function drawLargerSnakeHeads(width, height, mySnakeBody, opponents, board) {
+    opponents.forEach(snakes => {
+      snakes.body[0].forEach(head => {
+        if (snakes.body.length >= mySnakeBody.length + 1) {
+          if (head.y + 1 < height) {
+            board[head.y + 1][head.x] = 1;
+          }
+          if (head.y - 1 >= 0) {
+            board[head.y - 1][head.x] = 1;
+          }
+          if (head.x + 1 < width) {
+            board[head.y][head.x + 1] = 1;
+          }
+          if (head.x - 1 >= 0) {
+            board[head.y][head.x - 1] = 1;
+          }
         }
-        if (head.y - 1 >= 0) {
-          board[head.y - 1][head.x] = 1;
-        }
-        if (head.x + 1 < width) {
-          board[head.y][head.x + 1] = 1;
-        }
-        if (head.x - 1 >= 0) {
-          board[head.y][head.x - 1] = 1;
-        }
-      }
+      });
     });
   }
 
