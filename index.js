@@ -68,7 +68,7 @@ app.post("/move", (request, response) => {
 
     createMySnake(mySnakeBody, board);
     createOpponents(myOpponentSnakes, board);
-    createSnakeHeads(myOpponentSnakes, mySnakeBody, mySnakeName);
+    createSnakeHeads(myOpponentSnakes, mySnakeBody, mySnakeName, boardHeight, boardWidth, board);
 
     return board;
   }
@@ -90,27 +90,24 @@ app.post("/move", (request, response) => {
   /* 
   TODO: Create a function that puts 1's around larger snake's heads
   */
-  function drawLargerSnakeHeads(opponents, mySnakeBody, mySnakeName) {
+  function drawLargerSnakeHeads(opponents, myBody, myName, height, width, board) {
     for (const snake of opponents) {
-      if (snake.body.length >= mySnakeBody.length + 1 && snake.name != mySnakeName)
-        console.log(snake.name);
+      if (snake.body.length >= myBody.length + 1 && snake.name != myName) {
+        if (snake.body[0].y + 1 < height) {
+          board[snake.body[0].y + 1][snake.body[0].x] = 1;
+        }
+        if (snake.body[0].y - 1 >= 0) {
+          board[snake.body[0].y - 1][snake.body[0].x] = 1;
+        }
+        if (snake.body[0].x + 1 < width) {
+          board[snake.body[0].y][snake.body[0].x + 1] = 1;
+        }
+        if (snake.body[0].x - 1 >= 0) {
+          board[snake.body[0].y][snake.body[0].x - 1] = 1;
+        }
+      }
     }
   }
-
-  // if (opponents.body.length >= mySnakeBody.length + 1) {
-  //   if (head.y + 1 < height) {
-  //     board[head.y + 1][head.x] = 1;
-  //   }
-  //   if (head.y - 1 >= 0) {
-  //     board[head.y - 1][head.x] = 1;
-  //   }
-  //   if (head.x + 1 < width) {
-  //     board[head.y][head.x + 1] = 1;
-  //   }
-  //   if (head.x - 1 >= 0) {
-  //     board[head.y][head.x - 1] = 1;
-  //   }
-  // }
 
   function checkAdjacentTiles(board) {
     let availableMove = {
