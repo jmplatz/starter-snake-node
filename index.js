@@ -173,11 +173,11 @@ app.post("/move", (request, response) => {
             foodMoves.splice(indexOfClosest, 1);
             console.log(`LOOP: Length of array is now ${foodMoves.length}`);
             if (foodMoves.length == 0) {
-              // append panic mode coordinates
               console.log("Invoked checkAdjacentTiles()");
-              const move = checkAdjacent(playingBoard);
-              console.log(`Returned next move: ${move}`);
-              return move;
+              const survivalMove = checkAdjacent(playingBoard);
+              console.log(`Returned survial move: ${survivalMove}`);
+              nextMove = survivalMove;
+              pathFound = true;
             }
           } else {
             nextMove = path[1];
@@ -200,13 +200,13 @@ app.post("/move", (request, response) => {
 
   // Returns move
   console.log("Submitted move.");
-  if (mySnakeHead.x > theMove[0].x) {
+  if (mySnakeHead.x > theMove.x) {
     data.move = "left";
-  } else if (mySnakeHead.y > theMove[0].y) {
+  } else if (mySnakeHead.y > theMove.y) {
     data.move = "up";
-  } else if (mySnakeHead.x < theMove[0].x) {
+  } else if (mySnakeHead.x < theMove.x) {
     data.move = "right";
-  } else if (mySnakeHead.y < theMove[0].y) {
+  } else if (mySnakeHead.y < theMove.y) {
     data.move = "down";
   }
 
