@@ -144,15 +144,15 @@ app.post("/move", (request, response) => {
 
     // FIXME: Need to add edge case of picking a "safe" option that won't kill me 1-2 turns later
     console.log("SURVIVAL MODE: Checking available tiles");
-    if (board[mySnakeHead.y][mySnakeHead.x - 1] != 1 && mySnakeHead.x - 1 > 0) {
+    if (mySnakeHead.x - 1 >= 0 && board[mySnakeHead.y][mySnakeHead.x - 1] != 1) {
       availableMove.x = mySnakeHead.x - 1;
       availableMove.y = mySnakeHead.y;
       console.log("Left is Available");
-    } else if (board[mySnakeHead.y - 1][mySnakeHead.x] != 1 && mySnakeHead.y - 1 > 0) {
+    } else if (mySnakeHead.y - 1 >= 0 && board[mySnakeHead.y - 1][mySnakeHead.x] != 1) {
       availableMove.x = mySnakeHead.x;
       availableMove.y = mySnakeHead.y - 1;
       console.log("Up is Available");
-    } else if (board[mySnakeHead.y][mySnakeHead.x + 1] != 1 && mySnakeHead.x + 1 < boardWidth) {
+    } else if (mySnakeHead.x + 1 < boardWidth && board[mySnakeHead.y][mySnakeHead.x + 1] != 1) {
       availableMove.x = mySnakeHead.x + 1;
       availableMove.y = mySnakeHead.y;
       console.log("Right is Available");
@@ -200,7 +200,7 @@ app.post("/move", (request, response) => {
     const foodMoves = moveDistances(playingBoard);
     console.log(`7. Returned back to selectMove with distances array: (${foodMoves})`);
 
-    while (foodMoves.length >= 0 && pathFound == false) {
+    while (pathFound == false) {
       console.log("8. Entering while loop.");
       const indexOfClosest = calculateClosest(foodMoves);
       const closestFood = request.body.board.food[indexOfClosest];
