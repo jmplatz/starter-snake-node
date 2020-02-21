@@ -65,7 +65,7 @@ app.post("/move", (request, response) => {
     const myOpponentSnakes = request.body.board.snakes;
 
     createMySnake(mySnakeBody, board);
-    createOpponents(myOpponentSnakes, mySnakeBody, board);
+    createOpponents(myOpponentSnakes, board);
 
     return board;
   }
@@ -76,25 +76,8 @@ app.post("/move", (request, response) => {
     });
   }
 
-  function drawOpponents(opponentSnakeBodies, mySnakeBody, board) {
-    const boardHeight = request.body.board.height;
-    const boardWidth = request.body.board.width;
-
+  function drawOpponents(opponentSnakeBodies, board) {
     opponentSnakeBodies.forEach(snakes => {
-      if (snakes.body.length >= mySnakeBody.length + 1) {
-        if (snakes.body[0].y + 1 < boardHeight) {
-          board[snakes.body.y + 1][snakes.body.x] = 1;
-        }
-        if (snakes.body[0].y - 1 >= 0) {
-          board[snakes.body.y - 1][snakes.body.x] = 1;
-        }
-        if (snakes.body[0].x + 1 < boardWidth) {
-          board[snakes.body.y][snakes.body.x + 1] = 1;
-        }
-        if (snakes.body[0].x - 1 >= 0) {
-          board[snakes.body.y][snakes.body.x - 1] = 1;
-        }
-      }
       snakes.body.forEach(element => {
         board[element.y][element.x] = 1;
       });
@@ -104,6 +87,25 @@ app.post("/move", (request, response) => {
   /* 
   TODO: Create a function that puts 1's around larger snake's heads
   */
+  // function drawLargerSnakeHeads() {
+  //   const boardHeight = request.body.board.height;
+  //   const boardWidth = request.body.board.width;
+
+  //   if (snakes.body.length >= mySnakeBody.length + 1) {
+  //     if (snakes.body[0].y + 1 < boardHeight) {
+  //       board[snakes.body.y + 1][snakes.body.x] = 1;
+  //     }
+  //     if (snakes.body[0].y - 1 >= 0) {
+  //       board[snakes.body.y - 1][snakes.body.x] = 1;
+  //     }
+  //     if (snakes.body[0].x + 1 < boardWidth) {
+  //       board[snakes.body.y][snakes.body.x + 1] = 1;
+  //     }
+  //     if (snakes.body[0].x - 1 >= 0) {
+  //       board[snakes.body.y][snakes.body.x - 1] = 1;
+  //     }
+  //   }
+  // }
 
   function checkAdjacentTiles(board) {
     let availableMove = {
