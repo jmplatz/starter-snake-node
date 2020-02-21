@@ -66,10 +66,15 @@ app.post("/move", (request, response) => {
     const mySnakeName = request.body.you.name;
     const myOpponentSnakes = request.body.board.snakes;
 
+    const foodLocations = request.body.board.food;
+    console.log("Creating My Snake");
     createMySnake(mySnakeBody, board);
+    console.log("Creating Opponent Snakes");
     createOpponents(myOpponentSnakes, board);
+    console.log("Marking Larger Snakes");
     createSnakeHeads(myOpponentSnakes, mySnakeBody, mySnakeName, boardHeight, boardWidth, board);
-    dangerousFood(height, width, board);
+    console.log("Removing Dangerous Food Options");
+    dangerousFood(foodLocations, height, width, board);
     return board;
   }
 
@@ -87,6 +92,7 @@ app.post("/move", (request, response) => {
     });
   }
 
+  // If snake is larger than mine puts 1's around the head
   function drawLargerSnakeHeads(opponents, myBody, myName, height, width, board) {
     for (const snake of opponents) {
       if (snake.body.length >= myBody.length + 1 && snake.name != myName) {
@@ -107,40 +113,32 @@ app.post("/move", (request, response) => {
   }
 
   // TODO: Need to implement function that prevents targetting food that kills me 1-2 turns later
-  function removeDangerousFood(height, width, board) {
-    const foodLocations = request.body.board.food;
-
+  function removeDangerousFood(foodLocations, height, width, board) {
     for (const food of foodLocations) {
       // if both food.x +/- 1 == 1, make y +/- 1 also == 1
-      if (
-        food.x - 1 >= 0 &&
-        board[food.y][food.x - 1] == 1 &&
-        food.x + 1 < width &&
-        board[food.y][food.x + 1] == 1
-      ) {
-        if (food.y + 1 < height) {
-          board[food.y + 1][food.x] = 1;
+      if (food.x - 1 >= 0 && board[food.y][food.x - 1] == 1) {
+        if (food.x + 1 < width && board[food.y][food.x + 1] == 1) {
+          if (food.y + 1 < height) {
+            board[food.y + 1][food.x] = 1;
+          }
+          if (food.y - 1 >= 0) {
+            board[food.y - 1][food.x] = 1;
+          }
+          console.log(`Made food at ${food.x}, ${food.y} unavailable`);
         }
-        if (food.y - 1 >= 0) {
-          board[food.y - 1][food.x] = 1;
-        }
-        console.log(`Made food at ${food.x}, ${food.y} unavailable`);
       }
 
-      // Same for food.y's
-      if (
-        food.y - 1 >= 0 &&
-        board[food.y - 1][food.x] == 1 &&
-        food.y + 1 < height &&
-        board[food.y + 1][food.x] == 1
-      ) {
-        if (food.x + 1 < width) {
-          board[food.y][food.x + 1] = 1;
+      // Same for food.x's
+      if (food.y - 1 >= 0 && board[food.y - 1][food.x] == 1) {
+        if (food.y + 1 < height && board[food.y + 1][food.x] == 1) {
+          if (food.x + 1 < width) {
+            board[food.y][food.x + 1] = 1;
+          }
+          if (food.x - 1 >= 0) {
+            board[food.y][food.x - 1] = 1;
+          }
+          console.log(`Made food at ${food.x}, ${food.y} unavailable`);
         }
-        if (food.x - 1 >= 0) {
-          board[food.y][food.x - 1] = 1;
-        }
-        console.log(`Made food at ${food.x}, ${food.y} unavailable`);
       }
     }
   }
