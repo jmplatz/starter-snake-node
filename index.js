@@ -91,7 +91,7 @@ app.post("/move", (request, response) => {
   */
   function drawLargerSnakeHeads(opponents, mySnakeBody) {
     for (const snake of opponents) {
-      if (snake.body.length >= mySnakeBody.length + 1) console.log(snake.body[0]);
+      if (snake.body.length >= mySnakeBody.length + 1) console.log(snake.name);
     }
   }
 
