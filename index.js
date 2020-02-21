@@ -41,7 +41,7 @@ app.post("/start", (request, response) => {
 // Handle POST request to '/move'
 app.post("/move", (request, response) => {
   const data = {
-    move: "up" // default to up
+    move: ""
   };
 
   const mySnakeHead = request.body.you.body[0];
@@ -82,6 +82,24 @@ app.post("/move", (request, response) => {
         board[element.y][element.x] = 1;
       });
     });
+  }
+
+  function checkAdjacentTiles(board) {
+    let availableMove;
+    const left = [mySnakeHead.y, mySnakeHead.x - 1];
+    const up = [mySnakeHead.y - 1, mySnakeHead.x];
+    const right = [mySnakeHead.y, mySnakeHead.x + 1];
+    const down = [mySnakeHead.y + 1, mySnakeHead.x];
+
+    if (board[mySnakeHead.y][mySnakeHead.x - 1] != 1) {
+      availableMove = left;
+    } else if (board[mySnakeHead.y - 1][mySnakeHead.x] != 1) {
+      availableMove = up;
+    } else if (board[mySnakeHead.y][mySnakeHead.x + 1] != 1) {
+      availableMove = right;
+    } else availableMove = down;
+
+    return availableMove;
   }
 
   /* 
@@ -127,7 +145,7 @@ app.post("/move", (request, response) => {
   // Maybe starts with shortest, if returns null removes from array and tries next shortest, etc..
   // If length == 0 then activate chasing tail.
 
-  function selectMove(calculateClosest, distances) {
+  function selectMove(calculateClosest, distances, checkAdjacent) {
     let nextMove = [];
     let pathFound = false;
     const mySnakeHead = request.body.you.body[0];
@@ -150,18 +168,19 @@ app.post("/move", (request, response) => {
         function(path) {
           if (path === null) {
             console.log(
-              "Could not find path to closest food. Trying next closest."
+              "LOOP: Could not find path to closest food. Trying next closest."
             );
             foodMoves.splice(indexOfClosest, 1);
-            console.log(`Length of array is now ${foodMoves.length}`);
+            console.log(`LOOP: Length of array is now ${foodMoves.length}`);
             if (foodMoves.length == 0) {
               // append panic mode coordinates
-              console.log(
-                "Should have entered panic mode, if it existed... You're dead now."
-              );
+              console.log("Invoked checkAdjacentTiles()");
+              const move = checkAdjacent(playingBoard);
+              console.log(`Returned next move: ${move}`);
+              return move;
             }
           } else {
-            nextMove = path;
+            nextMove = path[1];
             console.log("Path found, returning nextMove");
             pathFound = true;
           }
@@ -173,18 +192,22 @@ app.post("/move", (request, response) => {
   }
 
   console.log("3. Selecting move");
-  const theMove = selectMove(findClosestFood, findFoodDistances);
+  const theMove = selectMove(
+    findClosestFood,
+    findFoodDistances,
+    checkAdjacentTiles
+  );
 
   // Returns move
   console.log("Submitted move.");
-  if (mySnakeHead.x > theMove[1].x) {
+  if (mySnakeHead.x > theMove[0].x) {
     data.move = "left";
-  } else if (mySnakeHead.x < theMove[1].x) {
-    data.move = "right";
-  } else if (mySnakeHead.y < theMove[1].y) {
-    data.move = "down";
-  } else if (mySnakeHead.y > theMove[1].y) {
+  } else if (mySnakeHead.y > theMove[0].y) {
     data.move = "up";
+  } else if (mySnakeHead.x < theMove[0].x) {
+    data.move = "right";
+  } else if (mySnakeHead.y < theMove[0].y) {
+    data.move = "down";
   }
 
   return response.json(data);
