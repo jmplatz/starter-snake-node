@@ -74,7 +74,7 @@ app.post("/move", (request, response) => {
     console.log("Marking Larger Snakes");
     createSnakeHeads(myOpponentSnakes, mySnakeBody, mySnakeName, boardHeight, boardWidth, board);
     console.log("Removing Dangerous Food Options");
-    dangerousFood(foodLocations, height, width, board);
+    dangerousFood(foodLocations, boardHeight, boardWidth, board);
     return board;
   }
 
