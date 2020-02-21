@@ -41,7 +41,7 @@ app.post("/start", (request, response) => {
 // Handle POST request to '/move'
 app.post("/move", (request, response) => {
   const data = {
-    move: ""
+    move: "up"
   };
 
   const mySnakeHead = request.body.you.body[0];
@@ -195,13 +195,13 @@ app.post("/move", (request, response) => {
 
   // Returns move
   console.log(`Submitted move: ${theMove[0]}`);
-  if (mySnakeHead.x > theMove[0].x) {
+  if (mySnakeHead.x > theMove.x) {
     data.move = "left";
-  } else if (mySnakeHead.y > theMove[0].y) {
+  } else if (mySnakeHead.y > theMove.y) {
     data.move = "up";
-  } else if (mySnakeHead.x < theMove[0].x) {
+  } else if (mySnakeHead.x < theMove.x) {
     data.move = "right";
-  } else if (mySnakeHead.y < theMove[0].y) {
+  } else if (mySnakeHead.y < theMove.y) {
     data.move = "down";
   }
 
