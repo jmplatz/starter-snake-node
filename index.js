@@ -86,7 +86,10 @@ app.post("/move", (request, response) => {
 
   function checkAdjacentTiles(board) {
     let availableMove = [];
+
+    const mySnakeHead = request.body.you.body[0];
     const boardWidth = request.body.board.width;
+
     const left = [mySnakeHead.y, mySnakeHead.x - 1];
     const up = [mySnakeHead.y - 1, mySnakeHead.x];
     const right = [mySnakeHead.y, mySnakeHead.x + 1];
@@ -136,6 +139,7 @@ app.post("/move", (request, response) => {
     return index;
   }
 
+  console.log(`Turn ${request.body.turn}`);
   console.log("1. Board Created");
   const playingBoard = createPlayingBoard(drawMySnake, drawOpponents);
 
@@ -186,7 +190,6 @@ app.post("/move", (request, response) => {
     return nextMove;
   }
 
-  console.log(`Turn ${request.body.turn}`);
   console.log("3. Selecting move");
   const theMove = selectMove(findClosestFood, findFoodDistances, checkAdjacentTiles);
 
