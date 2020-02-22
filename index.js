@@ -245,6 +245,25 @@ app.post("/move", (request, response) => {
         availableMove.x = mySnakeHead.x;
         availableMove.y = mySnakeHead.y + 1;
         console.log("Down passes");
+      } else {
+        console.log("Panic Move");
+        if (leftValid == true) {
+          availableMove.x = mySnakeHead.x - 1;
+          availableMove.y = mySnakeHead.y;
+          console.log("Left");
+        } else if (upValid == true) {
+          availableMove.x = mySnakeHead.x;
+          availableMove.y = mySnakeHead.y - 1;
+          console.log("Up");
+        } else if (rightValid == true) {
+          availableMove.x = mySnakeHead.x + 1;
+          availableMove.y = mySnakeHead.y;
+          console.log("Right");
+        } else if (downValid == true) {
+          availableMove.x = mySnakeHead.x;
+          availableMove.y = mySnakeHead.y + 1;
+          console.log("Down");
+        }
       }
     }
 
