@@ -165,29 +165,37 @@ app.post("/move", (request, response) => {
     // Left Checks
     if (mySnakeHead.x - 1 >= 0 && board[mySnakeHead.y][mySnakeHead.x - 1] != 1) {
       leftValid = true;
-      if (board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1) leftUpCheck = true;
-      if (board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1) leftDownCheck = true;
+      if (board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1 && mySnakeHead.y - 1 >= 0)
+        leftUpCheck = true;
+      if (board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1 && mySnakeHead.y + 1 < boardHeight)
+        leftDownCheck = true;
     }
 
     // Up Checks
     if (mySnakeHead.y - 1 >= 0 && board[mySnakeHead.y - 1][mySnakeHead.x] != 1) {
       upValid = true;
-      if (board[mySnakeHead.y - 1][mySnakeHead.x + 1] != 1) leftDownCheck = true;
-      if (board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1) leftUpCheck = true;
+      if (board[mySnakeHead.y - 1][mySnakeHead.x + 1] != 1 && mySnakeHead.x + 1 < boardWidth)
+        upRightCheck = true;
+      if (board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1 && mySnakeHead.x - 1 >= 0)
+        upLeftCheck = true;
     }
 
     // Right Checks
     if (mySnakeHead.x + 1 < boardWidth && board[mySnakeHead.y][mySnakeHead.x + 1] != 1) {
       rightValid = true;
-      if (board[mySnakeHead.y - 1][mySnakeHead.x + 1] != 1) rightUpCheck = true;
-      if (board[mySnakeHead.y + 1][mySnakeHead.x + 1] != 1) rightDownCheck = true;
+      if (board[mySnakeHead.y - 1][mySnakeHead.x + 1] != 1 && mySnakeHead.y - 1 >= 0)
+        rightUpCheck = true;
+      if (board[mySnakeHead.y + 1][mySnakeHead.x + 1] != 1 && mySnakeHead.y + 1 < boardHeight)
+        rightDownCheck = true;
     }
 
     // Down Checks
     if (mySnakeHead.y + 1 < boardHeight && board[mySnakeHead.y + 1][mySnakeHead.x] != 1) {
       downValid = true;
-      if (board[mySnakeHead.y + 1][mySnakeHead.x + 1] != 1) downRightCheck = true;
-      if (board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1) downLeftCheck = true;
+      if (board[mySnakeHead.y + 1][mySnakeHead.x + 1] != 1 && mySnakeHead.x + 1 < boardWidth)
+        downRightCheck = true;
+      if (board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1 && mySnakeHead.x - 1 >= 0)
+        downLeftCheck = true;
     }
 
     // if valid move, check to see if below/above or right/left are available. If both checks fail don't move that direction
@@ -198,15 +206,15 @@ app.post("/move", (request, response) => {
     } else if (upValid == true && (upLeftCheck == true || upRightCheck == true)) {
       availableMove.x = mySnakeHead.x;
       availableMove.y = mySnakeHead.y - 1;
-      console.log("Up is Available");
+      console.log("Up passes checks");
     } else if (rightValid == true && (rightUpCheck == true || rightDownCheck == true)) {
       availableMove.x = mySnakeHead.x + 1;
       availableMove.y = mySnakeHead.y;
-      console.log("Right is Available");
+      console.log("Right passes checks");
     } else if (downValid == true && (downLeftCheck == true || downRightCheck == true)) {
       availableMove.x = mySnakeHead.x;
       availableMove.y = mySnakeHead.y + 1;
-      console.log("Down is Available");
+      console.log("Down passes checks");
     }
 
     return availableMove;
@@ -299,18 +307,18 @@ app.post("/move", (request, response) => {
 
   // Returns move
   console.log(`Move Selected: ${theMove.x}, ${theMove.y}`);
-  if (mySnakeHead.x > theMove.x) {
-    data.move = "left";
-    console.log("Chose Left");
-  } else if (mySnakeHead.y > theMove.y) {
+  if (mySnakeHead.y > theMove.y) {
     data.move = "up";
     console.log("Chose Up");
-  } else if (mySnakeHead.x < theMove.x) {
-    data.move = "right";
-    console.log("Chose Right");
   } else if (mySnakeHead.y < theMove.y) {
     data.move = "down";
     console.log("Chose Down");
+  } else if (mySnakeHead.x > theMove.x) {
+    data.move = "left";
+    console.log("Chose Left");
+  } else if (mySnakeHead.x < theMove.x) {
+    data.move = "right";
+    console.log("Chose Right");
   }
 
   return response.json(data);
