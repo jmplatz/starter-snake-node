@@ -169,6 +169,9 @@ app.post("/move", (request, response) => {
         leftUpCheck = true;
       if (board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1 && mySnakeHead.y + 1 < boardHeight)
         leftDownCheck = true;
+      console.log(
+        `Left: ${leftValid}, leftUpCheck: ${leftUpCheck}, leftDownCheck ${leftDownCheck}`
+      );
     }
 
     // Up Checks
@@ -178,6 +181,7 @@ app.post("/move", (request, response) => {
         upRightCheck = true;
       if (board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1 && mySnakeHead.x - 1 >= 0)
         upLeftCheck = true;
+      console.log(`Up: ${upValid}, upLeftCheck: ${upLeftCheck}, upRightCheck ${upRightCheck}`);
     }
 
     // Right Checks
@@ -187,6 +191,9 @@ app.post("/move", (request, response) => {
         rightUpCheck = true;
       if (board[mySnakeHead.y + 1][mySnakeHead.x + 1] != 1 && mySnakeHead.y + 1 < boardHeight)
         rightDownCheck = true;
+      console.log(
+        `Right: ${rightValid}, rightUpCheck: ${rightUpCheck}, rightDownCheck ${rightDownCheck}`
+      );
     }
 
     // Down Checks
@@ -196,6 +203,9 @@ app.post("/move", (request, response) => {
         downRightCheck = true;
       if (board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1 && mySnakeHead.x - 1 >= 0)
         downLeftCheck = true;
+      console.log(
+        `Down: ${downValid}, downLeftCheck: ${downLeftCheck}, downRightCheck ${downRightCheck}`
+      );
     }
 
     // if valid move, check to see if below/above or right/left are available. If both checks fail don't move that direction
@@ -296,7 +306,6 @@ app.post("/move", (request, response) => {
   console.log("2. Board Created");
 
   const easystar = new easystarjs.js();
-  console.table(playingBoard);
   easystar.setGrid(playingBoard);
   easystar.setAcceptableTiles([0]);
   easystar.enableSync(); // required to work
