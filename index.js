@@ -167,6 +167,7 @@ app.post("/move", (request, response) => {
 
     // Left Checks
     function leftCheck() {
+      console.log("Entered Left Check");
       if (mySnakeHead.x - 1 >= 0 && board[mySnakeHead.y][mySnakeHead.x - 1] != 1) {
         leftValid = true;
       }
@@ -185,6 +186,7 @@ app.post("/move", (request, response) => {
 
     // Up Checks
     function upCheck() {
+      console.log("Entered Up Check");
       if (mySnakeHead.y - 1 >= 0 && board[mySnakeHead.y - 1][mySnakeHead.x] != 1) {
         upValid = true;
       }
@@ -201,6 +203,7 @@ app.post("/move", (request, response) => {
 
     // Right Checks
     function rightCheck() {
+      console.log("Entered Right Check");
       if (mySnakeHead.x + 1 < boardWidth && board[mySnakeHead.y][mySnakeHead.x + 1] != 1) {
         rightValid = true;
       }
@@ -219,6 +222,7 @@ app.post("/move", (request, response) => {
 
     // Down Checks
     function downCheck() {
+      console.log("Entered Down Check");
       if (mySnakeHead.y + 1 < boardHeight && board[mySnakeHead.y + 1][mySnakeHead.x] != 1) {
         downValid = true;
       }
@@ -237,6 +241,7 @@ app.post("/move", (request, response) => {
 
     // if valid move, check to see if below/above or right/left are available. If both checks fail don't move that direction
     function pickSafestOption() {
+      console.log("Choosing safest move if available");
       if (leftValid == true && leftUpCheck == true && leftDownCheck == true) {
         availableMove.x = mySnakeHead.x - 1;
         availableMove.y = mySnakeHead.y;
@@ -287,7 +292,7 @@ app.post("/move", (request, response) => {
 
     function panicMove() {
       if (safeMove == false) {
-        console.log("Panic Move");
+        console.log("Entered Panic Move");
         if (leftValid == true) {
           availableMove.x = mySnakeHead.x - 1;
           availableMove.y = mySnakeHead.y;
