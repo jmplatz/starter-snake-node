@@ -144,33 +144,33 @@ app.post("/move", (request, response) => {
 
     // FIXME: Need to add edge case of picking a "safe" option that won't kill me 1-2 turns later
     console.log("SURVIVAL MODE: Checking available tiles");
-    if (mySnakeHead.x - 1 >= 0 && board[mySnakeHead.y][mySnakeHead.x - 1] != 1) {
-      if (
-        board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1 &&
-        board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1
-      ) {
-        availableMove.x = mySnakeHead.x - 1;
-        availableMove.y = mySnakeHead.y;
-        console.log("Left is Available");
-      }
-    } else if (mySnakeHead.y - 1 >= 0 && board[mySnakeHead.y - 1][mySnakeHead.x] != 1) {
-      if (
-        board[mySnakeHead.y - 1][mySnakeHead.x + 1] != 1 &&
-        board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1
-      ) {
-        availableMove.x = mySnakeHead.x;
-        availableMove.y = mySnakeHead.y - 1;
-        console.log("Up is Available");
-      }
-    } else if (mySnakeHead.x + 1 < boardWidth && board[mySnakeHead.y][mySnakeHead.x + 1] != 1) {
-      if (
-        board[mySnakeHead.y - 1][mySnakeHead.x + 1] != 1 &&
-        board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1
-      ) {
-        availableMove.x = mySnakeHead.x + 1;
-        availableMove.y = mySnakeHead.y;
-        console.log("Right is Available");
-      }
+    if (
+      mySnakeHead.x - 1 >= 0 &&
+      board[mySnakeHead.y][mySnakeHead.x - 1] != 1 &&
+      board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1 &&
+      board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1
+    ) {
+      availableMove.x = mySnakeHead.x - 1;
+      availableMove.y = mySnakeHead.y;
+      console.log("Left is Available");
+    } else if (
+      mySnakeHead.y - 1 >= 0 &&
+      board[mySnakeHead.y - 1][mySnakeHead.x] != 1 &&
+      board[mySnakeHead.y - 1][mySnakeHead.x + 1] != 1 &&
+      board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1
+    ) {
+      availableMove.x = mySnakeHead.x;
+      availableMove.y = mySnakeHead.y - 1;
+      console.log("Up is Available");
+    } else if (
+      mySnakeHead.x + 1 < boardWidth &&
+      board[mySnakeHead.y][mySnakeHead.x + 1] != 1 &&
+      board[mySnakeHead.y - 1][mySnakeHead.x + 1] != 1 &&
+      board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1
+    ) {
+      availableMove.x = mySnakeHead.x + 1;
+      availableMove.y = mySnakeHead.y;
+      console.log("Right is Available");
     } else {
       availableMove.x = mySnakeHead.x;
       availableMove.y = mySnakeHead.y + 1;
