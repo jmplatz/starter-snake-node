@@ -165,16 +165,12 @@ app.post("/move", (request, response) => {
     // Left Checks
     if (mySnakeHead.x - 1 >= 0 && board[mySnakeHead.y][mySnakeHead.x - 1] != 1) {
       leftValid = true;
-      console.log(`Left: ${leftValid}`);
-      if (board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1 && mySnakeHead.y - 1 >= 0) {
+      if (board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1 && mySnakeHead.y - 1 >= 0)
         leftUpCheck = true;
-        console.log(`leftUpCheck: ${leftUpCheck}`);
-      }
-      if (board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1 && mySnakeHead.y + 1 < boardHeight) {
+      if (board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1 && mySnakeHead.y + 1 < boardHeight)
         leftDownCheck = true;
-        console.log(`leftDownCheck ${leftDownCheck}`);
-      }
     }
+    console.log(`Left: ${leftValid}, leftUpCheck: ${leftUpCheck}, leftDownCheck ${leftDownCheck}`);
 
     // Up Checks
     if (mySnakeHead.y - 1 >= 0 && board[mySnakeHead.y - 1][mySnakeHead.x] != 1) {
