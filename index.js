@@ -141,37 +141,69 @@ app.post("/move", (request, response) => {
 
     const mySnakeHead = request.body.you.body[0];
     const boardWidth = request.body.board.width;
+    const boardHeight = request.body.board.height;
+
+    let leftValid = false;
+    let upValid = false;
+    let rightValid = false;
+    let downValid = false;
+
+    let leftUpCheck = false;
+    let leftDownCheck = false;
+
+    let upRightCheck = false;
+    let upLeftCheck = false;
+
+    let rightUpCheck = false;
+    let rightDownCheck = false;
+
+    let downRightCheck = false;
+    let downLeftCheck = false;
 
     // FIXME: Need to add edge case of picking a "safe" option that won't kill me 1-2 turns later
     console.log("SURVIVAL MODE: Checking available tiles");
-    if (
-      mySnakeHead.x - 1 >= 0 &&
-      board[mySnakeHead.y][mySnakeHead.x - 1] != 1 &&
-      board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1 &&
-      board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1
-    ) {
+    // Left Checks
+    if (mySnakeHead.x - 1 >= 0 && board[mySnakeHead.y][mySnakeHead.x - 1] != 1) {
+      leftValid = true;
+      if (board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1) leftUpCheck = true;
+      if (board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1) leftDownCheck = true;
+    }
+
+    // Up Checks
+    if (mySnakeHead.y - 1 >= 0 && board[mySnakeHead.y - 1][mySnakeHead.x] != 1) {
+      upValid = true;
+      if (board[mySnakeHead.y - 1][mySnakeHead.x + 1] != 1) leftDownCheck = true;
+      if (board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1) leftUpCheck = true;
+    }
+
+    // Right Checks
+    if (mySnakeHead.x + 1 < boardWidth && board[mySnakeHead.y][mySnakeHead.x + 1] != 1) {
+      rightValid = true;
+      if (board[mySnakeHead.y - 1][mySnakeHead.x + 1] != 1) rightUpCheck = true;
+      if (board[mySnakeHead.y + 1][mySnakeHead.x + 1] != 1) rightDownCheck = true;
+    }
+
+    // Down Checks
+    if (mySnakeHead.y + 1 < boardHeight && board[mySnakeHead.y + 1][mySnakeHead.x] != 1) {
+      downValid = true;
+      if (board[mySnakeHead.y + 1][mySnakeHead.x + 1] != 1) downRightCheck = true;
+      if (board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1) downLeftCheck = true;
+    }
+
+    // if valid move, check to see if below/above or right/left are available. If both checks fail don't move that direction
+    if (leftValid == true && (leftUpCheck == true || leftDownCheck == true)) {
       availableMove.x = mySnakeHead.x - 1;
       availableMove.y = mySnakeHead.y;
-      console.log("Left is Available");
-    } else if (
-      mySnakeHead.y - 1 >= 0 &&
-      board[mySnakeHead.y - 1][mySnakeHead.x] != 1 &&
-      board[mySnakeHead.y - 1][mySnakeHead.x + 1] != 1 &&
-      board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1
-    ) {
+      console.log("Left passes checks");
+    } else if (upValid == true && (upLeftCheck == true || upRightCheck == true)) {
       availableMove.x = mySnakeHead.x;
       availableMove.y = mySnakeHead.y - 1;
       console.log("Up is Available");
-    } else if (
-      mySnakeHead.x + 1 < boardWidth &&
-      board[mySnakeHead.y][mySnakeHead.x + 1] != 1 &&
-      board[mySnakeHead.y - 1][mySnakeHead.x + 1] != 1 &&
-      board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1
-    ) {
+    } else if (rightValid == true && (rightUpCheck == true || rightDownCheck == true)) {
       availableMove.x = mySnakeHead.x + 1;
       availableMove.y = mySnakeHead.y;
       console.log("Right is Available");
-    } else {
+    } else if (downValid == true && (downLeftCheck == true || downRightCheck == true)) {
       availableMove.x = mySnakeHead.x;
       availableMove.y = mySnakeHead.y + 1;
       console.log("Down is Available");
