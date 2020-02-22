@@ -160,6 +160,8 @@ app.post("/move", (request, response) => {
     let downRightCheck = false;
     let downLeftCheck = false;
 
+    let safeMove = true;
+
     // FIXME: Need to add edge case of picking a "safe" option that won't kill me 1-2 turns later
     console.log("SURVIVAL MODE: Checking available tiles");
     // Left Checks
@@ -224,42 +226,52 @@ app.post("/move", (request, response) => {
       availableMove.y = mySnakeHead.y + 1;
       console.log("Down passes all checks");
     } else {
+      safeMove = false;
+    }
+
+    if (safeMove == false) {
       console.log("Safest moves unavailable. Checking less safe options");
       if (leftValid == true && (leftUpCheck == true || leftDownCheck == true)) {
         availableMove.x = mySnakeHead.x - 1;
         availableMove.y = mySnakeHead.y;
+        safeMove = true;
         console.log("Left passes");
       } else if (upValid == true && (upLeftCheck == true || upRightCheck == true)) {
         availableMove.x = mySnakeHead.x;
         availableMove.y = mySnakeHead.y - 1;
+        safeMove = true;
         console.log("Up passes");
       } else if (rightValid == true && (rightUpCheck == true || rightDownCheck == true)) {
         availableMove.x = mySnakeHead.x + 1;
         availableMove.y = mySnakeHead.y;
+        safeMove = true;
         console.log("Right passes");
       } else if (downValid == true && (downLeftCheck == true || downRightCheck == true)) {
         availableMove.x = mySnakeHead.x;
         availableMove.y = mySnakeHead.y + 1;
+        safeMove = true;
         console.log("Down passes");
-      } else {
-        console.log("Panic Move");
-        if (leftValid == true) {
-          availableMove.x = mySnakeHead.x - 1;
-          availableMove.y = mySnakeHead.y;
-          console.log("Left");
-        } else if (upValid == true) {
-          availableMove.x = mySnakeHead.x;
-          availableMove.y = mySnakeHead.y - 1;
-          console.log("Up");
-        } else if (rightValid == true) {
-          availableMove.x = mySnakeHead.x + 1;
-          availableMove.y = mySnakeHead.y;
-          console.log("Right");
-        } else if (downValid == true) {
-          availableMove.x = mySnakeHead.x;
-          availableMove.y = mySnakeHead.y + 1;
-          console.log("Down");
-        }
+      }
+    }
+
+    if (safeMove == false) {
+      console.log("Panic Move");
+      if (leftValid == true) {
+        availableMove.x = mySnakeHead.x - 1;
+        availableMove.y = mySnakeHead.y;
+        console.log("Left");
+      } else if (upValid == true) {
+        availableMove.x = mySnakeHead.x;
+        availableMove.y = mySnakeHead.y - 1;
+        console.log("Up");
+      } else if (rightValid == true) {
+        availableMove.x = mySnakeHead.x + 1;
+        availableMove.y = mySnakeHead.y;
+        console.log("Right");
+      } else if (downValid == true) {
+        availableMove.x = mySnakeHead.x;
+        availableMove.y = mySnakeHead.y + 1;
+        console.log("Down");
       }
     }
 
