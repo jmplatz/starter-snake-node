@@ -164,116 +164,158 @@ app.post("/move", (request, response) => {
 
     // FIXME: Need to add edge case of picking a "safe" option that won't kill me 1-2 turns later
     console.log("SURVIVAL MODE: Checking available tiles");
+
     // Left Checks
-    if (mySnakeHead.x - 1 >= 0 && board[mySnakeHead.y][mySnakeHead.x - 1] != 1) {
-      leftValid = true;
-      if (board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1 && mySnakeHead.y - 1 >= 0)
-        leftUpCheck = true;
-      if (board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1 && mySnakeHead.y + 1 < boardHeight)
-        leftDownCheck = true;
+    function leftCheck() {
+      if (mySnakeHead.x - 1 >= 0 && board[mySnakeHead.y][mySnakeHead.x - 1] != 1) {
+        leftValid = true;
+      }
+      if (leftValid == true) {
+        if (mySnakeHead.y - 1 >= 0 && board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1) {
+          leftUpCheck = true;
+        }
+        if (mySnakeHead.y + 1 < boardHeight && board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1) {
+          leftDownCheck = true;
+        }
+      }
+      console.log(
+        `Left: ${leftValid}, leftUpCheck: ${leftUpCheck}, leftDownCheck ${leftDownCheck}`
+      );
     }
-    console.log(`Left: ${leftValid}, leftUpCheck: ${leftUpCheck}, leftDownCheck ${leftDownCheck}`);
 
     // Up Checks
-    if (mySnakeHead.y - 1 >= 0 && board[mySnakeHead.y - 1][mySnakeHead.x] != 1) {
-      upValid = true;
-      if (board[mySnakeHead.y - 1][mySnakeHead.x + 1] != 1 && mySnakeHead.x + 1 < boardWidth)
-        upRightCheck = true;
-      if (board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1 && mySnakeHead.x - 1 >= 0)
-        upLeftCheck = true;
+    function upCheck() {
+      if (mySnakeHead.y - 1 >= 0 && board[mySnakeHead.y - 1][mySnakeHead.x] != 1) {
+        upValid = true;
+      }
+      if (upValid == true) {
+        if (mySnakeHead.x + 1 < boardWidth && board[mySnakeHead.y - 1][mySnakeHead.x + 1] != 1) {
+          upRightCheck = true;
+        }
+        if (mySnakeHead.x - 1 >= 0 && board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1) {
+          upLeftCheck = true;
+        }
+      }
+      console.log(`Up: ${upValid}, upLeftCheck: ${upLeftCheck}, upRightCheck ${upRightCheck}`);
     }
-    console.log(`Up: ${upValid}, upLeftCheck: ${upLeftCheck}, upRightCheck ${upRightCheck}`);
 
     // Right Checks
-    if (mySnakeHead.x + 1 < boardWidth && board[mySnakeHead.y][mySnakeHead.x + 1] != 1) {
-      rightValid = true;
-      if (board[mySnakeHead.y - 1][mySnakeHead.x + 1] != 1 && mySnakeHead.y - 1 >= 0)
-        rightUpCheck = true;
-      if (board[mySnakeHead.y + 1][mySnakeHead.x + 1] != 1 && mySnakeHead.y + 1 < boardHeight)
-        rightDownCheck = true;
+    function rightCheck() {
+      if (mySnakeHead.x + 1 < boardWidth && board[mySnakeHead.y][mySnakeHead.x + 1] != 1) {
+        rightValid = true;
+      }
+      if (rightValid == true) {
+        if (mySnakeHead.y - 1 >= 0 && board[mySnakeHead.y - 1][mySnakeHead.x + 1] != 1) {
+          rightUpCheck = true;
+        }
+        if (mySnakeHead.y + 1 < boardHeight && board[mySnakeHead.y + 1][mySnakeHead.x + 1] != 1) {
+          rightDownCheck = true;
+        }
+      }
+      console.log(
+        `Right: ${rightValid}, rightUpCheck: ${rightUpCheck}, rightDownCheck ${rightDownCheck}`
+      );
     }
-    console.log(
-      `Right: ${rightValid}, rightUpCheck: ${rightUpCheck}, rightDownCheck ${rightDownCheck}`
-    );
 
     // Down Checks
-    if (mySnakeHead.y + 1 < boardHeight && board[mySnakeHead.y + 1][mySnakeHead.x] != 1) {
-      downValid = true;
-      if (board[mySnakeHead.y + 1][mySnakeHead.x + 1] != 1 && mySnakeHead.x + 1 < boardWidth)
-        downRightCheck = true;
-      if (board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1 && mySnakeHead.x - 1 >= 0)
-        downLeftCheck = true;
+    function downCheck() {
+      if (mySnakeHead.y + 1 < boardHeight && board[mySnakeHead.y + 1][mySnakeHead.x] != 1) {
+        downValid = true;
+      }
+      if (downValid == true) {
+        if (mySnakeHead.x + 1 < boardWidth && board[mySnakeHead.y + 1][mySnakeHead.x + 1] != 1) {
+          downRightCheck = true;
+        }
+        if (mySnakeHead.x - 1 >= 0 && board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1) {
+          downLeftCheck = true;
+        }
+      }
+      console.log(
+        `Down: ${downValid}, downLeftCheck: ${downLeftCheck}, downRightCheck ${downRightCheck}`
+      );
     }
-    console.log(
-      `Down: ${downValid}, downLeftCheck: ${downLeftCheck}, downRightCheck ${downRightCheck}`
-    );
 
     // if valid move, check to see if below/above or right/left are available. If both checks fail don't move that direction
-    if (leftValid == true && leftUpCheck == true && leftDownCheck == true) {
-      availableMove.x = mySnakeHead.x - 1;
-      availableMove.y = mySnakeHead.y;
-      console.log("Left passes all checks");
-    } else if (upValid == true && upLeftCheck == true && upRightCheck == true) {
-      availableMove.x = mySnakeHead.x;
-      availableMove.y = mySnakeHead.y - 1;
-      console.log("Up passes all checks");
-    } else if (rightValid == true && rightUpCheck == true && rightDownCheck == true) {
-      availableMove.x = mySnakeHead.x + 1;
-      availableMove.y = mySnakeHead.y;
-      console.log("Right passes all checks");
-    } else if (downValid == true && downLeftCheck == true && downRightCheck == true) {
-      availableMove.x = mySnakeHead.x;
-      availableMove.y = mySnakeHead.y + 1;
-      console.log("Down passes all checks");
-    } else {
-      safeMove = false;
-    }
-
-    if (safeMove == false) {
-      console.log("Safest moves unavailable. Checking less safe options");
-      if (leftValid == true && (leftUpCheck == true || leftDownCheck == true)) {
+    function pickSafestOption() {
+      if (leftValid == true && leftUpCheck == true && leftDownCheck == true) {
         availableMove.x = mySnakeHead.x - 1;
         availableMove.y = mySnakeHead.y;
-        safeMove = true;
-        console.log("Left passes");
-      } else if (upValid == true && (upLeftCheck == true || upRightCheck == true)) {
+        console.log("Left passes all checks");
+      } else if (upValid == true && upLeftCheck == true && upRightCheck == true) {
         availableMove.x = mySnakeHead.x;
         availableMove.y = mySnakeHead.y - 1;
-        safeMove = true;
-        console.log("Up passes");
-      } else if (rightValid == true && (rightUpCheck == true || rightDownCheck == true)) {
+        console.log("Up passes all checks");
+      } else if (rightValid == true && rightUpCheck == true && rightDownCheck == true) {
         availableMove.x = mySnakeHead.x + 1;
         availableMove.y = mySnakeHead.y;
-        safeMove = true;
-        console.log("Right passes");
-      } else if (downValid == true && (downLeftCheck == true || downRightCheck == true)) {
+        console.log("Right passes all checks");
+      } else if (downValid == true && downLeftCheck == true && downRightCheck == true) {
         availableMove.x = mySnakeHead.x;
         availableMove.y = mySnakeHead.y + 1;
-        safeMove = true;
-        console.log("Down passes");
+        console.log("Down passes all checks");
+      } else {
+        safeMove = false;
       }
     }
 
-    if (safeMove == false) {
-      console.log("Panic Move");
-      if (leftValid == true) {
-        availableMove.x = mySnakeHead.x - 1;
-        availableMove.y = mySnakeHead.y;
-        console.log("Left");
-      } else if (upValid == true) {
-        availableMove.x = mySnakeHead.x;
-        availableMove.y = mySnakeHead.y - 1;
-        console.log("Up");
-      } else if (rightValid == true) {
-        availableMove.x = mySnakeHead.x + 1;
-        availableMove.y = mySnakeHead.y;
-        console.log("Right");
-      } else if (downValid == true) {
-        availableMove.x = mySnakeHead.x;
-        availableMove.y = mySnakeHead.y + 1;
-        console.log("Down");
+    function lessSafeOptions() {
+      if (safeMove == false) {
+        console.log("Safest moves unavailable. Checking less safe options");
+        if (leftValid == true && (leftUpCheck == true || leftDownCheck == true)) {
+          availableMove.x = mySnakeHead.x - 1;
+          availableMove.y = mySnakeHead.y;
+          safeMove = true;
+          console.log("Left passes");
+        } else if (upValid == true && (upLeftCheck == true || upRightCheck == true)) {
+          availableMove.x = mySnakeHead.x;
+          availableMove.y = mySnakeHead.y - 1;
+          safeMove = true;
+          console.log("Up passes");
+        } else if (rightValid == true && (rightUpCheck == true || rightDownCheck == true)) {
+          availableMove.x = mySnakeHead.x + 1;
+          availableMove.y = mySnakeHead.y;
+          safeMove = true;
+          console.log("Right passes");
+        } else if (downValid == true && (downLeftCheck == true || downRightCheck == true)) {
+          availableMove.x = mySnakeHead.x;
+          availableMove.y = mySnakeHead.y + 1;
+          safeMove = true;
+          console.log("Down passes");
+        }
       }
     }
+
+    function panicMove() {
+      if (safeMove == false) {
+        console.log("Panic Move");
+        if (leftValid == true) {
+          availableMove.x = mySnakeHead.x - 1;
+          availableMove.y = mySnakeHead.y;
+          console.log("Left");
+        } else if (upValid == true) {
+          availableMove.x = mySnakeHead.x;
+          availableMove.y = mySnakeHead.y - 1;
+          console.log("Up");
+        } else if (rightValid == true) {
+          availableMove.x = mySnakeHead.x + 1;
+          availableMove.y = mySnakeHead.y;
+          console.log("Right");
+        } else if (downValid == true) {
+          availableMove.x = mySnakeHead.x;
+          availableMove.y = mySnakeHead.y + 1;
+          console.log("Down");
+        }
+      }
+    }
+
+    leftCheck();
+    upCheck();
+    rightCheck();
+    downCheck();
+
+    pickSafestOption();
+    lessSafeOptions();
+    panicMove();
 
     return availableMove;
   }
