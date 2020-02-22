@@ -169,10 +169,8 @@ app.post("/move", (request, response) => {
         leftUpCheck = true;
       if (board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1 && mySnakeHead.y + 1 < boardHeight)
         leftDownCheck = true;
-      console.log(
-        `Left: ${leftValid}, leftUpCheck: ${leftUpCheck}, leftDownCheck ${leftDownCheck}`
-      );
     }
+    console.log(`Left: ${leftValid}, leftUpCheck: ${leftUpCheck}, leftDownCheck ${leftDownCheck}`);
 
     // Up Checks
     if (mySnakeHead.y - 1 >= 0 && board[mySnakeHead.y - 1][mySnakeHead.x] != 1) {
@@ -181,8 +179,8 @@ app.post("/move", (request, response) => {
         upRightCheck = true;
       if (board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1 && mySnakeHead.x - 1 >= 0)
         upLeftCheck = true;
-      console.log(`Up: ${upValid}, upLeftCheck: ${upLeftCheck}, upRightCheck ${upRightCheck}`);
     }
+    console.log(`Up: ${upValid}, upLeftCheck: ${upLeftCheck}, upRightCheck ${upRightCheck}`);
 
     // Right Checks
     if (mySnakeHead.x + 1 < boardWidth && board[mySnakeHead.y][mySnakeHead.x + 1] != 1) {
@@ -191,10 +189,10 @@ app.post("/move", (request, response) => {
         rightUpCheck = true;
       if (board[mySnakeHead.y + 1][mySnakeHead.x + 1] != 1 && mySnakeHead.y + 1 < boardHeight)
         rightDownCheck = true;
-      console.log(
-        `Right: ${rightValid}, rightUpCheck: ${rightUpCheck}, rightDownCheck ${rightDownCheck}`
-      );
     }
+    console.log(
+      `Right: ${rightValid}, rightUpCheck: ${rightUpCheck}, rightDownCheck ${rightDownCheck}`
+    );
 
     // Down Checks
     if (mySnakeHead.y + 1 < boardHeight && board[mySnakeHead.y + 1][mySnakeHead.x] != 1) {
@@ -203,33 +201,53 @@ app.post("/move", (request, response) => {
         downRightCheck = true;
       if (board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1 && mySnakeHead.x - 1 >= 0)
         downLeftCheck = true;
-      console.log(
-        `Down: ${downValid}, downLeftCheck: ${downLeftCheck}, downRightCheck ${downRightCheck}`
-      );
     }
+    console.log(
+      `Down: ${downValid}, downLeftCheck: ${downLeftCheck}, downRightCheck ${downRightCheck}`
+    );
 
     // if valid move, check to see if below/above or right/left are available. If both checks fail don't move that direction
-    if (leftValid == true && (leftUpCheck == true || leftDownCheck == true)) {
+    if (leftValid == true && leftUpCheck == true && leftDownCheck == true) {
       availableMove.x = mySnakeHead.x - 1;
       availableMove.y = mySnakeHead.y;
-      console.log("Left passes checks");
-    } else if (upValid == true && (upLeftCheck == true || upRightCheck == true)) {
+      console.log("Left passes all checks");
+    } else if (upValid == true && upLeftCheck == true && upRightCheck == true) {
       availableMove.x = mySnakeHead.x;
       availableMove.y = mySnakeHead.y - 1;
-      console.log("Up passes checks");
-    } else if (rightValid == true && (rightUpCheck == true || rightDownCheck == true)) {
+      console.log("Up passes all checks");
+    } else if (rightValid == true && rightUpCheck == true && rightDownCheck == true) {
       availableMove.x = mySnakeHead.x + 1;
       availableMove.y = mySnakeHead.y;
-      console.log("Right passes checks");
-    } else if (downValid == true && (downLeftCheck == true || downRightCheck == true)) {
+      console.log("Right passes all checks");
+    } else if (downValid == true && downLeftCheck == true && downRightCheck == true) {
       availableMove.x = mySnakeHead.x;
       availableMove.y = mySnakeHead.y + 1;
-      console.log("Down passes checks");
+      console.log("Down passes all checks");
+    } else {
+      console.log("Safest moves unavailable. Checking less safe options");
+      if (leftValid == true && (leftUpCheck == true || leftDownCheck == true)) {
+        availableMove.x = mySnakeHead.x - 1;
+        availableMove.y = mySnakeHead.y;
+        console.log("Left passes");
+      } else if (upValid == true && (upLeftCheck == true || upRightCheck == true)) {
+        availableMove.x = mySnakeHead.x;
+        availableMove.y = mySnakeHead.y - 1;
+        console.log("Up passes");
+      } else if (rightValid == true && (rightUpCheck == true || rightDownCheck == true)) {
+        availableMove.x = mySnakeHead.x + 1;
+        availableMove.y = mySnakeHead.y;
+        console.log("Right passes");
+      } else if (downValid == true && (downLeftCheck == true || downRightCheck == true)) {
+        availableMove.x = mySnakeHead.x;
+        availableMove.y = mySnakeHead.y + 1;
+        console.log("Down passes");
+      }
     }
 
     return availableMove;
   }
 
+  // Creates an array of possible food moves based on distance away from snakehead
   function findFoodDistances(board) {
     console.log("5. Entered findFoodDistances()");
     const foodMovesArray = [];
@@ -249,6 +267,7 @@ app.post("/move", (request, response) => {
 
   /* FIXME: Need to deal with edge case of two moves with equal distances, might be removing incorrect one from array? */
 
+  // Passed the array of food moves, returns the index of the shortest move
   function findClosestFood(foodArray) {
     console.log("9. Entered findClosestFood()");
     if (foodArray.length == 0) return 0;
@@ -259,6 +278,12 @@ app.post("/move", (request, response) => {
     }
   }
 
+  /* Utilizes 3 callbacks.
+  1. Creates an array of food move distances
+  2. Finds the closest food available and runs Easystar.js
+  3. If it cannot find a path it removes that option from the array and tries the next closest, etc.
+  4. If no food paths can be found it enters a "Survival Mode," checking adjacent tiles for available moves
+  */
   function selectMove(calculateClosest, moveDistances, checkAdjacent) {
     let nextMove = [];
     let pathFound = false;
