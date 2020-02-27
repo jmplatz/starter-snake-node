@@ -439,7 +439,7 @@ app.post("/move", (request, response) => {
   const easystar = new easystarjs.js();
   easystar.setGrid(playingBoard);
   easystar.setAcceptableTiles([0]);
-  easystar.enableSync(); // required to work
+  // easystar.enableSync(); // required to work
 
   // TODO: Place this into a move function
   console.log("3. Selecting move");
