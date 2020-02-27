@@ -399,6 +399,7 @@ app.post("/move", (request, response) => {
   function chaseTail () {
     console.log("Entered chase tail mode");
     const mySnake = request.body.you.body;
+    const mySnakeHead = request.body.you.body[0];
     let pathFound = false;
     let nextIndex = 1;
     let survivalMove = [];
@@ -407,6 +408,7 @@ app.post("/move", (request, response) => {
       console.log("Entered while loop");
       chaseTailMove = mySnake[mySnake.length - nextIndex];
       console.log(`Tail at x:${chaseTailMove.x}, y:${chaseTailMove.y}`);
+      
       easystar.findPath(mySnakeHead.x, mySnakeHead.y, chaseTailMove.x, chaseTailMove.y, function(path) {
         if (path === null) {
           console.log("No move, trying next index");
