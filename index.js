@@ -402,6 +402,7 @@ app.post("/move", (request, response) => {
     let pathFound = false;
     let chaseTailMove;
     let nextIndex = 1;
+    let survivalMove = [];
     
     while (pathFound == false) {
       chaseTailMove = mySnake[mySnake.length - nextIndex];
@@ -411,11 +412,13 @@ app.post("/move", (request, response) => {
           console.log("No move, trying next index");
           nextIndex++;
         } else {
-          pathFound = true;
-          return path[1];
+          survivalMove = path[1];
+          console.log(`Found path at ${survivalMove.x}, ${survivalMove.y}`);
         } 
       });
+      easystar.calculate();
     }
+    return survivalMove;
   }
 
   // TODO: Place these into an initialize function?
