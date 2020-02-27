@@ -403,7 +403,7 @@ app.post("/move", (request, response) => {
     let chaseTailMove;
     let nextIndex = 1;
     
-    while (pathFound == false && (mySnake.length - nextIndex > 0)) {
+    while (pathFound == false) {
       chaseTailMove = mySnake[mySnake.length - nextIndex];
       console.log(`Trying move at x:${chaseTailMove.x}, y:${chaseTailMove.y}`);
       easystar.findPath(mySnakeHead.x, mySnakeHead.y, chaseTailMove.x, chaseTailMove.y, function(path) {
