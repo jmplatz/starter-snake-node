@@ -359,10 +359,10 @@ app.post("/move", (request, response) => {
   /* Utilizes 3 callbacks.
   1. Creates an array of food move distances
   2. Finds the closest food available and runs Easystar.js
-  3. If it cannot find a path it removes that option from the array and tries the next closest, etc.
+  3. If it cannot find a path it removes that option from the array and tries the next closest.
   4. If no food paths can be found it enters a "Survival Mode," checking adjacent tiles for available moves
   */
-  function selectMove(calculateClosest, moveDistances, checkAdjacent) {
+  function selectMove(calculateClosest, moveDistances, chaseTail) {
     let nextMove = [];
     let pathFound = false;
     const mySnakeHead = request.body.you.body[0];
@@ -381,8 +381,8 @@ app.post("/move", (request, response) => {
           foodMoves.splice(indexOfClosest, 1);
           console.log(`LOOP: Length of food array is now: (${foodMoves.length})`);
           if (foodMoves.length == 0) {
-            const survivalMove = checkAdjacent(playingBoard);
-            nextMove = survivalMove;
+            // const survivalMove = checkAdjacent(playingBoard);
+            nextMove = chaseTail();
             pathFound = true;
           }
         } else {
@@ -394,6 +394,28 @@ app.post("/move", (request, response) => {
       easystar.calculate();
     }
     return nextMove;
+  }
+
+  function chaseTail () {
+    console.log("Entered chase tail mode");
+    const mySnake = request.body.you.body;
+    let pathFound = false;
+    let chaseTailMove;
+    let nextIndex = 1;
+    
+    while (pathFound == false && (mySnake.length - nextIndex > 0)) {
+      chaseTailMove = mySnake[mySnake.length - nextIndex];
+      console.log(`Trying move at x:${chaseTailMove.x}, y:${chaseTailMove.y}`);
+      easystar.findPath(mySnakeHead.x, mySnakeHead.y, chaseTailMove.x, chaseTailMove.y, function(path) {
+        if (path === null) {
+          console.log("No move, trying next index");
+          nextIndex++;
+        } else {
+          pathFound = true;
+          return path[1];
+        } 
+      });
+    }
   }
 
   // TODO: Place these into an initialize function?
@@ -415,7 +437,8 @@ app.post("/move", (request, response) => {
 
   // TODO: Place this into a move function
   console.log("3. Selecting move");
-  const theMove = selectMove(findClosestFood, findFoodDistances, checkAdjacentTiles);
+  const theMove = selectMove(findClosestFood, findFoodDistances, chaseTail); 
+  //checkAdjacentTiles
 
   // Returns move
   console.log(`Move Selected: ${theMove.x}, ${theMove.y}`);
