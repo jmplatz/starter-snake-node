@@ -208,11 +208,13 @@ app.post("/move", (request, response) => {
       console.log("Entered chaseSelfMode");
       const mySnake = request.body.you.body;
       let index = 1;
+      let pathFound = false;
       
       while (pathFound === false) {
         let chaseSelfMove = mySnake[mySnake.length - index];
+        console.log(`chaseSelfMove: ${chaseSelfMove.x}, ${chaseSelfMove.y}`);
 
-        moveOption = runEasyStar(chaseSelfMove);
+        let moveOption = runEasyStar(chaseSelfMove);
 
         if (Object.entries(moveOption).length == 0) {
           console.log("LOOP: Could not find path, trying next body part.");
@@ -227,6 +229,7 @@ app.post("/move", (request, response) => {
         }
       }
     }
+    
     console.log("Exited loop and returned a move");
     return nextMove;
   }
