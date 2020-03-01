@@ -170,7 +170,7 @@ app.post("/move", (request, response) => {
   3. If it cannot find a path it removes that option from the array and tries the next closest.
   4. If no food paths can be found it enters a "Survival Mode," checking adjacent tiles for available moves
   */
-  function selectMove(calculateClosest, moveDistances, runEasyStar) {
+  function selectMove(calculateClosest, moveDistances, runEasyStar, changeTile) {
     let nextMove = {};
     let pathFound = false;
     console.log("4. Intializing selectMove Function");
@@ -185,7 +185,7 @@ app.post("/move", (request, response) => {
       console.log("8. Entering food loop.");
       const indexOfClosest = calculateClosest(foodMoves);
       const closestFood = request.body.board.food[indexOfClosest];
-
+      
       let moveOption = runEasyStar(closestFood);
 
       if (Object.entries(moveOption).length == 0) {
@@ -214,6 +214,7 @@ app.post("/move", (request, response) => {
         chaseSelfMove = snake[snake.length - index];
         console.log(`chaseSelfMove: ${chaseSelfMove.x}, ${chaseSelfMove.y}`);
 
+        changeTile(playingBoard, chaseSelfMove);
         let moveOption = runEasyStar(chaseSelfMove);
 
         if (Object.entries(moveOption).length == 0) {
@@ -227,11 +228,21 @@ app.post("/move", (request, response) => {
             `Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`
           );
         }
+
+        changeTile(playingBoard, chaseSelfMove);
       }
     }
     
     console.log("Exited loop and returned a move");
     return nextMove;
+  }
+
+  function changeTile (board, coordinates) {
+    if (board[coordinates.y][coordinates.x] == 1) {
+      board[coordinates.y][coordinates.x] = 0;
+    } else {
+      board[coordinates.y][coordinates.x] = 1;
+    }
   }
 
   // function chaseTail () {
@@ -298,7 +309,7 @@ app.post("/move", (request, response) => {
 
   // TODO: Place this into a move function
   console.log("3. Selecting move");
-  const theMove = selectMove(findClosestFood, findFoodDistances, runEasyStar); 
+  const theMove = selectMove(findClosestFood, findFoodDistances, runEasyStar, changeTile); 
   //checkAdjacentTiles
 
   // Returns move
