@@ -95,7 +95,7 @@ app.post("/move", (request, response) => {
   // If snake is larger than mine puts 1's around the head
   function drawLargerSnakeHeads(opponents, myBody, myName, height, width, board) {
     for (const snake of opponents) {
-      if (snake.body.length >= myBody.length + 1 && snake.name != myName) {
+      if (snake.body.length > myBody.length + 1 && snake.name != myName) {
         if (snake.body[0].y + 1 < height) {
           board[snake.body[0].y + 1][snake.body[0].x] = 1;
         }
@@ -245,34 +245,6 @@ app.post("/move", (request, response) => {
     }
   }
 
-  // function chaseTail () {
-  //   console.log("Entered chase tail mode");
-  //   const mySnake = request.body.you.body;
-  //   const mySnakeHead = request.body.you.body[0];
-  //   let pathFound = false;
-  //   let nextIndex = 1;
-  //   let survivalMove = [];
-    
-  //   while (pathFound == false) {
-  //     console.log("Entered while loop");
-  //     chaseTailMove = request.body.you.body[request.body.you.body.length - nextIndex];
-  //     console.log(`Tail at x:${chaseTailMove.x}, y:${chaseTailMove.y}`);
-      
-  //     easystar.findPath(mySnakeHead.x, mySnakeHead.y, chaseTailMove.x, chaseTailMove.y, function(path) {
-  //       if (path === null) {
-  //         console.log("No move, trying next index");
-  //         nextIndex++;
-  //       } else {
-  //         survivalMove = path[1];
-  //         pathFound = true;
-  //         console.log(`Found path at ${survivalMove.x}, ${survivalMove.y}`);
-  //       } 
-  //     });
-  //     easystar.calculate();
-  //   }
-  //   return survivalMove;
-  // }
-
   function runEasyStar(move) {
     let moveCheck = {};
     const mySnakeHead = request.body.you.body[0];
@@ -301,6 +273,7 @@ app.post("/move", (request, response) => {
     removeDangerousFood
   );
   console.log("2. Board Created");
+  console.table(playingBoard);
 
   const easystar = new easystarjs.js();
   easystar.setGrid(playingBoard);
