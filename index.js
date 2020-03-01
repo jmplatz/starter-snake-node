@@ -188,7 +188,7 @@ app.post("/move", (request, response) => {
 
       const moveOption = runEasyStar(closestFood);
 
-      if (moveOption.length == 0) {
+      if (Object.entries(moveOption).length == 0) {
         console.log(
           "LOOP: Could not find path to closest food. Trying next closest."
         );
@@ -235,7 +235,7 @@ app.post("/move", (request, response) => {
   // }
 
   function runEasyStar(move) {
-    let moveCheck = [];
+    let moveCheck = {};
     const mySnakeHead = request.body.you.body[0];
     easystar.findPath(mySnakeHead.x, mySnakeHead.y, move.x, move.y, function(path) {
         if (path === null) {
