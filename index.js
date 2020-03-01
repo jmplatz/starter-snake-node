@@ -195,7 +195,8 @@ app.post("/move", (request, response) => {
         foodMoves.splice(indexOfClosest, 1);
         console.log(`LOOP: Length of food array is now: (${foodMoves.length})`);
       } else {
-        nextMove = moveOption[1];
+        console.log("Returned with move.");
+        nextMove = moveOption;
         pathFound = true;
         console.log(
           `Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`
@@ -240,14 +241,15 @@ app.post("/move", (request, response) => {
     easystar.findPath(mySnakeHead.x, mySnakeHead.y, move.x, move.y, function(path) {
         if (path === null) {
           console.log("Path not found, returned empty object");
-          return moveCheck;
         } else {
-          console.log("Path found, returned path object");
-          moveCheck = path;
-          return moveCheck;
+          moveCheck = path[1];
+          console.log(`Found path at ${moveCheck.x}, ${moveCheck.y}`);
         } 
       });
       easystar.calculate();
+
+      console.log("Path found, returned path object");
+      return moveCheck;
     }
 
   // TODO: Place these into an initialize function?
