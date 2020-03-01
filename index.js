@@ -206,15 +206,16 @@ app.post("/move", (request, response) => {
 
     if (foodMoves.length === 0) {
       console.log("Entered chaseSelfMode");
-      let mySnake = request.body.you.body;
+      const mySnakeBod = request.body.you.body;
+      let chaseSelfMove = {};
       let index = 1;
       let pathFound = false;
       
       while (pathFound === false) {
-        let chaseSelfMove = mySnake.slice(mySnake.length - index);
-        console.log(`chaseSelfMove: ${chaseSelfMove[0].x}, ${chaseSelfMove[0].y}`);
+        chaseSelfMove = mySnakeBod[mySnakeBod.length - index];
+        console.log(`chaseSelfMove: ${chaseSelfMove.x}, ${chaseSelfMove.y}`);
 
-        let moveOption = runEasyStar(chaseSelfMove[0]);
+        let moveOption = runEasyStar(chaseSelfMove);
 
         if (Object.entries(moveOption).length == 0) {
           console.log("LOOP: Could not find path, trying next body part.");
