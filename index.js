@@ -133,198 +133,6 @@ app.post("/move", (request, response) => {
     }
   }
 
-  function checkAdjacentTiles(board) {
-    let availableMove = {
-      x: null,
-      y: null
-    };
-
-    const mySnakeHead = request.body.you.body[0];
-    const boardWidth = request.body.board.width;
-    const boardHeight = request.body.board.height;
-
-    let leftValid = false;
-    let upValid = false;
-    let rightValid = false;
-    let downValid = false;
-
-    let leftUpCheck = false;
-    let leftDownCheck = false;
-
-    let upRightCheck = false;
-    let upLeftCheck = false;
-
-    let rightUpCheck = false;
-    let rightDownCheck = false;
-
-    let downRightCheck = false;
-    let downLeftCheck = false;
-
-    let safeMove = true;
-
-    // FIXME: Need to add edge case of picking a "safe" option that won't kill me 1-2 turns later
-    console.log("SURVIVAL MODE: Checking available tiles");
-
-    // Left Checks
-    function leftCheck() {
-      console.log("Entered Left Check");
-      if (mySnakeHead.x - 1 >= 0 && board[mySnakeHead.y][mySnakeHead.x - 1] != 1) {
-        leftValid = true;
-      }
-      if (leftValid == true) {
-        if (mySnakeHead.y - 1 >= 0 && board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1) {
-          leftUpCheck = true;
-        }
-        if (mySnakeHead.y + 1 < boardHeight && board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1) {
-          leftDownCheck = true;
-        }
-      }
-      console.log(
-        `Left: ${leftValid}, leftUpCheck: ${leftUpCheck}, leftDownCheck ${leftDownCheck}`
-      );
-    }
-
-    // Up Checks
-    function upCheck() {
-      console.log("Entered Up Check");
-      if (mySnakeHead.y - 1 >= 0 && board[mySnakeHead.y - 1][mySnakeHead.x] != 1) {
-        upValid = true;
-      }
-      if (upValid == true) {
-        if (mySnakeHead.x + 1 < boardWidth && board[mySnakeHead.y - 1][mySnakeHead.x + 1] != 1) {
-          upRightCheck = true;
-        }
-        if (mySnakeHead.x - 1 >= 0 && board[mySnakeHead.y - 1][mySnakeHead.x - 1] != 1) {
-          upLeftCheck = true;
-        }
-      }
-      console.log(`Up: ${upValid}, upLeftCheck: ${upLeftCheck}, upRightCheck ${upRightCheck}`);
-    }
-
-    // Right Checks
-    function rightCheck() {
-      console.log("Entered Right Check");
-      if (mySnakeHead.x + 1 < boardWidth && board[mySnakeHead.y][mySnakeHead.x + 1] != 1) {
-        rightValid = true;
-      }
-      if (rightValid == true) {
-        if (mySnakeHead.y - 1 >= 0 && board[mySnakeHead.y - 1][mySnakeHead.x + 1] != 1) {
-          rightUpCheck = true;
-        }
-        if (mySnakeHead.y + 1 < boardHeight && board[mySnakeHead.y + 1][mySnakeHead.x + 1] != 1) {
-          rightDownCheck = true;
-        }
-      }
-      console.log(
-        `Right: ${rightValid}, rightUpCheck: ${rightUpCheck}, rightDownCheck ${rightDownCheck}`
-      );
-    }
-
-    // Down Checks
-    function downCheck() {
-      console.log("Entered Down Check");
-      if (mySnakeHead.y + 1 < boardHeight && board[mySnakeHead.y + 1][mySnakeHead.x] != 1) {
-        downValid = true;
-      }
-      if (downValid == true) {
-        if (mySnakeHead.x + 1 < boardWidth && board[mySnakeHead.y + 1][mySnakeHead.x + 1] != 1) {
-          downRightCheck = true;
-        }
-        if (mySnakeHead.x - 1 >= 0 && board[mySnakeHead.y + 1][mySnakeHead.x - 1] != 1) {
-          downLeftCheck = true;
-        }
-      }
-      console.log(
-        `Down: ${downValid}, downLeftCheck: ${downLeftCheck}, downRightCheck ${downRightCheck}`
-      );
-    }
-
-    // if valid move, check to see if below/above or right/left are available. If both checks fail don't move that direction
-    function pickSafestOption() {
-      console.log("Choosing safest move if available");
-      if (leftValid == true && leftUpCheck == true && leftDownCheck == true) {
-        availableMove.x = mySnakeHead.x - 1;
-        availableMove.y = mySnakeHead.y;
-        console.log("Left passes all checks");
-      } else if (upValid == true && upLeftCheck == true && upRightCheck == true) {
-        availableMove.x = mySnakeHead.x;
-        availableMove.y = mySnakeHead.y - 1;
-        console.log("Up passes all checks");
-      } else if (rightValid == true && rightUpCheck == true && rightDownCheck == true) {
-        availableMove.x = mySnakeHead.x + 1;
-        availableMove.y = mySnakeHead.y;
-        console.log("Right passes all checks");
-      } else if (downValid == true && downLeftCheck == true && downRightCheck == true) {
-        availableMove.x = mySnakeHead.x;
-        availableMove.y = mySnakeHead.y + 1;
-        console.log("Down passes all checks");
-      } else {
-        safeMove = false;
-      }
-    }
-
-    function lessSafeOptions() {
-      if (safeMove == false) {
-        console.log("Safest moves unavailable. Checking less safe options");
-        if (leftValid == true && (leftUpCheck == true || leftDownCheck == true)) {
-          availableMove.x = mySnakeHead.x - 1;
-          availableMove.y = mySnakeHead.y;
-          safeMove = true;
-          console.log("Left passes");
-        } else if (upValid == true && (upLeftCheck == true || upRightCheck == true)) {
-          availableMove.x = mySnakeHead.x;
-          availableMove.y = mySnakeHead.y - 1;
-          safeMove = true;
-          console.log("Up passes");
-        } else if (rightValid == true && (rightUpCheck == true || rightDownCheck == true)) {
-          availableMove.x = mySnakeHead.x + 1;
-          availableMove.y = mySnakeHead.y;
-          safeMove = true;
-          console.log("Right passes");
-        } else if (downValid == true && (downLeftCheck == true || downRightCheck == true)) {
-          availableMove.x = mySnakeHead.x;
-          availableMove.y = mySnakeHead.y + 1;
-          safeMove = true;
-          console.log("Down passes");
-        }
-      }
-    }
-
-    function panicMove() {
-      if (safeMove == false) {
-        console.log("Entered Panic Move");
-        if (leftValid == true) {
-          availableMove.x = mySnakeHead.x - 1;
-          availableMove.y = mySnakeHead.y;
-          console.log("Left");
-        } else if (upValid == true) {
-          availableMove.x = mySnakeHead.x;
-          availableMove.y = mySnakeHead.y - 1;
-          console.log("Up");
-        } else if (rightValid == true) {
-          availableMove.x = mySnakeHead.x + 1;
-          availableMove.y = mySnakeHead.y;
-          console.log("Right");
-        } else if (downValid == true) {
-          availableMove.x = mySnakeHead.x;
-          availableMove.y = mySnakeHead.y + 1;
-          console.log("Down");
-        }
-      }
-    }
-
-    leftCheck();
-    upCheck();
-    rightCheck();
-    downCheck();
-
-    pickSafestOption();
-    lessSafeOptions();
-    panicMove();
-
-    return availableMove;
-  }
-
   // Creates an array of possible food moves based on distance away from snakehead
   function findFoodDistances(board) {
     console.log("5. Entered findFoodDistances()");
@@ -362,67 +170,81 @@ app.post("/move", (request, response) => {
   3. If it cannot find a path it removes that option from the array and tries the next closest.
   4. If no food paths can be found it enters a "Survival Mode," checking adjacent tiles for available moves
   */
-  function selectMove(calculateClosest, moveDistances, chaseTail) {
+  function selectMove(calculateClosest, moveDistances, runEasyStar) {
     let nextMove = [];
     let pathFound = false;
-    const mySnakeHead = request.body.you.body[0];
     console.log("4. Intializing selectMove Function");
 
     const foodMoves = moveDistances(playingBoard);
-    console.log(`7. Returned back to selectMove with distances array: (${foodMoves})`);
-
-    while (pathFound == false) {
-      console.log("8. Entering while loop.");
+    console.log(
+      `7. Returned back to selectMove with distances array: (${foodMoves})`
+    );
+    
+    // Food move loop
+    while (pathFound === false && foodMoves.length >= 0) {
+      console.log("8. Entering food loop.");
       const indexOfClosest = calculateClosest(foodMoves);
       const closestFood = request.body.board.food[indexOfClosest];
-      easystar.findPath(mySnakeHead.x, mySnakeHead.y, closestFood.x, closestFood.y, function(path) {
-        if (path === null) {
-          console.log("LOOP: Could not find path to closest food. Trying next closest.");
-          foodMoves.splice(indexOfClosest, 1);
-          console.log(`LOOP: Length of food array is now: (${foodMoves.length})`);
-          if (foodMoves.length == 0) {
-            // const survivalMove = checkAdjacent(playingBoard);
-            nextMove = chaseTail();
-            pathFound = true;
-          }
-        } else {
-          nextMove = path[1];
-          console.log(`Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`);
-          pathFound = true;
-        }
-      });
-      easystar.calculate();
+
+      let moveOption = runEasyStar(closestFood);
+
+      if (moveOption === null) {
+        console.log(
+          "LOOP: Could not find path to closest food. Trying next closest."
+        );
+        foodMoves.splice(indexOfClosest, 1);
+        console.log(`LOOP: Length of food array is now: (${foodMoves.length})`);
+      } else {
+        nextMove = moveOption[1];
+        pathFound = true;
+        console.log(
+          `Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`
+        );
+      }
     }
+    console.log("Exited loop and returned a move");
     return nextMove;
   }
 
-  function chaseTail () {
-    console.log("Entered chase tail mode");
-    const mySnake = request.body.you.body;
-    const mySnakeHead = request.body.you.body[0];
-    let pathFound = false;
-    let nextIndex = 1;
-    let survivalMove = [];
+  // function chaseTail () {
+  //   console.log("Entered chase tail mode");
+  //   const mySnake = request.body.you.body;
+  //   const mySnakeHead = request.body.you.body[0];
+  //   let pathFound = false;
+  //   let nextIndex = 1;
+  //   let survivalMove = [];
     
-    while (pathFound == false) {
-      console.log("Entered while loop");
-      chaseTailMove = request.body.you.body[request.body.you.body.length - nextIndex];
-      console.log(`Tail at x:${chaseTailMove.x}, y:${chaseTailMove.y}`);
+  //   while (pathFound == false) {
+  //     console.log("Entered while loop");
+  //     chaseTailMove = request.body.you.body[request.body.you.body.length - nextIndex];
+  //     console.log(`Tail at x:${chaseTailMove.x}, y:${chaseTailMove.y}`);
       
-      easystar.findPath(mySnakeHead.x, mySnakeHead.y, chaseTailMove.x, chaseTailMove.y, function(path) {
+  //     easystar.findPath(mySnakeHead.x, mySnakeHead.y, chaseTailMove.x, chaseTailMove.y, function(path) {
+  //       if (path === null) {
+  //         console.log("No move, trying next index");
+  //         nextIndex++;
+  //       } else {
+  //         survivalMove = path[1];
+  //         pathFound = true;
+  //         console.log(`Found path at ${survivalMove.x}, ${survivalMove.y}`);
+  //       } 
+  //     });
+  //     easystar.calculate();
+  //   }
+  //   return survivalMove;
+  // }
+
+  function runEasyStar(move) {
+    const mySnakeHead = request.body.you.body[0];
+    easystar.findPath(mySnakeHead.x, mySnakeHead.y, move.x, move.y, function(path) {
         if (path === null) {
-          console.log("No move, trying next index");
-          nextIndex++;
+          return null;
         } else {
-          survivalMove = path[1];
-          pathFound = true;
-          console.log(`Found path at ${survivalMove.x}, ${survivalMove.y}`);
+          return path;
         } 
       });
       easystar.calculate();
     }
-    return survivalMove;
-  }
 
   // TODO: Place these into an initialize function?
   console.log(`Turn ${request.body.turn}`);
@@ -443,7 +265,7 @@ app.post("/move", (request, response) => {
 
   // TODO: Place this into a move function
   console.log("3. Selecting move");
-  const theMove = selectMove(findClosestFood, findFoodDistances, chaseTail); 
+  const theMove = selectMove(findClosestFood, findFoodDistances, runEasyStar); 
   //checkAdjacentTiles
 
   // Returns move
