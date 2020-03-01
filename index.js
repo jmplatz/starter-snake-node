@@ -212,6 +212,8 @@ app.post("/move", (request, response) => {
       let pathFound = false;
 
       for (let i = 0; i < mySnakeBod.length; i++) {
+        console.log("Entered for loop");
+        console.log("i == " + i);
         console.log(`chaseSelfMove: ${mySnakeBod[i].x}, ${mySnakeBod[i].y}`);
       }
       
