@@ -206,35 +206,28 @@ app.post("/move", (request, response) => {
 
     if (foodMoves.length === 0) {
       console.log("Entered chaseSelfMode");
-      const mySnakeBod = request.body.you.body;
-      let chaseSelfMove = {};
+      const snake = request.body.board.snakes[0].body;
       let index = 1;
       let pathFound = false;
-
-      for (let i = 0; i < mySnakeBod.length; i++) {
-        console.log("Entered for loop");
-        console.log("i == " + i);
-        console.log(`chaseSelfMove: ${mySnakeBod[i].x}, ${mySnakeBod[i].y}`);
-      }
       
-      // while (pathFound === false) {
-      //   chaseSelfMove = mySnakeBod[mySnakeBod.length - index];
-      //   console.log(`chaseSelfMove: ${chaseSelfMove.x}, ${chaseSelfMove.y}`);
+      while (pathFound === false) {
+        chaseSelfMove = snake[snake.length - index];
+        console.log(`chaseSelfMove: ${chaseSelfMove.x}, ${chaseSelfMove.y}`);
 
-      //   let moveOption = runEasyStar(chaseSelfMove);
+        let moveOption = runEasyStar(chaseSelfMove);
 
-      //   if (Object.entries(moveOption).length == 0) {
-      //     console.log("LOOP: Could not find path, trying next body part.");
-      //     index++;
-      //   } else {
-      //     console.log("Returned with move.");
-      //     nextMove = moveOption;
-      //     pathFound = true;
-      //     console.log(
-      //       `Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`
-      //     );
-      //   }
-      // }
+        if (Object.entries(moveOption).length == 0) {
+          console.log("LOOP: Could not find path, trying next body part.");
+          index++;
+        } else {
+          console.log("Returned with move.");
+          nextMove = moveOption;
+          pathFound = true;
+          console.log(
+            `Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`
+          );
+        }
+      }
     }
     
     console.log("Exited loop and returned a move");
