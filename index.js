@@ -205,7 +205,7 @@ app.post("/move", (request, response) => {
     }
 
     if (foodMoves.length === 0) {
-      console.log("Entered chaseSelfMode")
+      console.log("Entered chaseSelfMode");
       const mySnake = request.body.you.body;
       let index = 1;
       
