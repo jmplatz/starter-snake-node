@@ -171,7 +171,7 @@ app.post("/move", (request, response) => {
   4. If no food paths can be found it enters a "Survival Mode," checking adjacent tiles for available moves
   */
   function selectMove(calculateClosest, moveDistances, runEasyStar) {
-    let nextMove = [];
+    let nextMove = {};
     let pathFound = false;
     console.log("4. Intializing selectMove Function");
 
@@ -239,10 +239,10 @@ app.post("/move", (request, response) => {
     const mySnakeHead = request.body.you.body[0];
     easystar.findPath(mySnakeHead.x, mySnakeHead.y, move.x, move.y, function(path) {
         if (path === null) {
-          console.log("Path not found returned null");
+          console.log("Path not found, returned empty object");
           return moveCheck;
         } else {
-          console.log("Path found returned path");
+          console.log("Path found, returned path object");
           moveCheck = path;
           return moveCheck;
         } 
