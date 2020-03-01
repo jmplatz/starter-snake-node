@@ -186,9 +186,9 @@ app.post("/move", (request, response) => {
       const indexOfClosest = calculateClosest(foodMoves);
       const closestFood = request.body.board.food[indexOfClosest];
 
-      let moveOption = runEasyStar(closestFood);
+      const moveOption = runEasyStar(closestFood);
 
-      if (moveOption === null) {
+      if (moveOption.length == 0) {
         console.log(
           "LOOP: Could not find path to closest food. Trying next closest."
         );
@@ -235,12 +235,16 @@ app.post("/move", (request, response) => {
   // }
 
   function runEasyStar(move) {
+    let moveCheck = [];
     const mySnakeHead = request.body.you.body[0];
     easystar.findPath(mySnakeHead.x, mySnakeHead.y, move.x, move.y, function(path) {
         if (path === null) {
-          return null;
+          console.log("Path not found returned null");
+          return moveCheck;
         } else {
-          return path;
+          console.log("Path found returned path");
+          moveCheck = path;
+          return moveCheck;
         } 
       });
       easystar.calculate();
