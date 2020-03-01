@@ -206,12 +206,12 @@ app.post("/move", (request, response) => {
 
     if (foodMoves.length === 0) {
       console.log("Entered chaseSelfMode");
-      const mySnake = request.body.you.body;
+      let mySnake = request.body.you.body;
       let index = 1;
       let pathFound = false;
       
       while (pathFound === false) {
-        let chaseSelfMove = mySnake[mySnake.length - index];
+        let chaseSelfMove = mySnake.slice(mySnake.length - index);
         console.log(`chaseSelfMove: ${chaseSelfMove.x}, ${chaseSelfMove.y}`);
 
         let moveOption = runEasyStar(chaseSelfMove);
@@ -275,7 +275,7 @@ app.post("/move", (request, response) => {
       });
       easystar.calculate();
 
-      console.log("Path found, returned path object");
+      console.log("Returned path object");
       return moveCheck;
     }
 
