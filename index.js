@@ -183,17 +183,19 @@ app.post("/move", (request, response) => {
 
       let moveOption = runEasyStar(mySnakeHead, closestFood);
 
-      if (Object.entries(moveOption).length === 0) {
+      if (Object.entries(moveOption).length == 0) {
         console.log("LOOP: Could not find path to closest food. Trying next closest.");
         foodMoves.splice(indexOfClosest, 1);
         console.log(`LOOP: Length of food array is now: (${foodMoves.length})`);
       } else {
+        console.log("Entered futureMove check");
         // Change move to unplayable tile temporarily
         changeTile(playingBoard, moveOption);
         let futureMove = runEasyStar(closestFood, nextClosestFood);
+        console.log("Returned with futureMove");
 
-        if (Object.entries(futureMove).length === 0) {
-          console.log("LOOP: Could not find from foodMove to futureFood");
+        if (Object.entries(futureMove).length == 0) {
+          console.log("LOOP: Could not find path from foodMove to futureFood");
           foodMoves.splice(indexOfClosest, 1);
           console.log(`LOOP: Length of food array is now: (${foodMoves.length})`);
         } else {
@@ -207,7 +209,7 @@ app.post("/move", (request, response) => {
       }
     }
 
-    if (foodMoves.length === 0) {
+    if (foodMoves.length == 0) {
       console.log("Entered chaseSelfMode");
       // snakes[0] is always me
       const snake = request.body.board.snakes[0].body;
@@ -260,10 +262,13 @@ app.post("/move", (request, response) => {
   // }
 
   function changeTile(board, coordinates) {
+    console.log("Entered changeTile");
     if (board[coordinates.y][coordinates.x] === 1) {
       board[coordinates.y][coordinates.x] = 0;
+      console.log(`Swapped x:${coordinates.x} y:${coordinates.y} to 0`);
     } else {
       board[coordinates.y][coordinates.x] = 1;
+      console.log(`Swapped x:${coordinates.x} y:${coordinates.y} to 1`);
     }
   }
 
@@ -282,7 +287,6 @@ app.post("/move", (request, response) => {
     });
     easystar.calculate();
 
-    console.log("Returned path object");
     return viableMove;
   }
 
