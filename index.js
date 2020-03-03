@@ -367,16 +367,16 @@ app.post("/move", (request, response) => {
 
   // Returns move
   console.log(`Move Selected: ${theMove.x}, ${theMove.y}`);
-  if (mySnakeHead.y > theMove.y) {
+  if (mySnakeHead.y - 1 == theMove.y) {
     data.move = "up";
     console.log("Chose Up");
-  } else if (mySnakeHead.y < theMove.y) {
+  } else if (mySnakeHead.y - 1 == theMove.y) {
     data.move = "down";
     console.log("Chose Down");
-  } else if (mySnakeHead.x > theMove.x) {
+  } else if (mySnakeHead.x - 1 == theMove.x) {
     data.move = "left";
     console.log("Chose Left");
-  } else if (mySnakeHead.x < theMove.x) {
+  } else if (mySnakeHead.x + 1 == theMove.x) {
     data.move = "right";
     console.log("Chose Right");
   }
