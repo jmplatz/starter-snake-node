@@ -197,7 +197,7 @@ app.post("/move", (request, response) => {
     const closestFood = request.body.board.food[indexOfClosest];
 
     // For first 5 turns just go for food regularly
-    while (currentTurn < 5 && foodMoves.length > 0) {
+    while (currentTurn < 5 && foodMoves.length > 0 && pathFound === false) {
       let moveOption = runEasyStar(mySnakeHead, closestFood);
 
       if (Object.entries(moveOption).length == 0) {
