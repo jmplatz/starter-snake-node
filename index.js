@@ -164,7 +164,7 @@ app.post("/move", (request, response) => {
       }
 
       const indexOfNextClosest = foodArray.indexOf(nextClosest);
-
+      console.log(`Outputted the element at index (${nextClosest}) as next closest option.`);
       return indexOfNextClosest;
 
       // else just return closest
