@@ -185,17 +185,37 @@ app.post("/move", (request, response) => {
   function selectMove(calculateClosest, moveDistances, runEasyStar, changeTile) {
     let nextMove = {};
     let pathFound = false;
+
     const mySnakeHead = request.body.you.body[0];
+    const currentTurn = request.body.turn;
     console.log("4. Intializing selectMove Function");
 
     const foodMoves = moveDistances(playingBoard);
     console.log(`7. Returned back to selectMove with distances array: (${foodMoves})`);
 
+    const indexOfClosest = calculateClosest(foodMoves);
+    const closestFood = request.body.board.food[indexOfClosest];
+
+    // For first 5 turns just go for food regularly
+    while (currentTurn < 5 && foodMoves.length > 0) {
+      let moveOption = runEasyStar(mySnakeHead, closestFood);
+
+      if (Object.entries(moveOption).length == 0) {
+        console.log("LOOP: Could not find path to closest food. Trying next closest.");
+        foodMoves.splice(indexOfClosest, 1);
+        console.log(`LOOP: Length of food array is now: (${foodMoves.length})`);
+      } else {
+        console.log("Returned with move.");
+        nextMove = moveOption;
+        pathFound = true;
+        console.log(`Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`);
+      }
+    }
     // Food move loop
     while (pathFound === false && foodMoves.length > 1) {
       console.log("8. Entering food loop.");
-      const indexOfClosest = calculateClosest(foodMoves);
-      const closestFood = request.body.board.food[indexOfClosest];
+      // const indexOfClosest = calculateClosest(foodMoves);
+      // const closestFood = request.body.board.food[indexOfClosest];
 
       let moveOption = runEasyStar(mySnakeHead, closestFood);
 
@@ -214,9 +234,10 @@ app.post("/move", (request, response) => {
 
         // Change move temporarily to an unplayable tile to make sure I'm not cutting myself off
         changeTile(playingBoard, moveOption);
-
         // Check to see if there's a path from food to next available food
         let futureMove = runEasyStar(closestFood, nextClosestFood);
+        // Change move back to playable tile
+        changeTile(playingBoard, moveOption);
         console.log("Returned with futureMove");
 
         if (Object.entries(futureMove).length == 0) {
@@ -225,8 +246,6 @@ app.post("/move", (request, response) => {
           console.log(`LOOP: Length of food array is now: (${foodMoves.length})`);
         } else {
           console.log("Returned with move.");
-          // Change move back to playable tile
-          changeTile(playingBoard, moveOption);
           nextMove = moveOption;
           pathFound = true;
           console.log(`Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`);
@@ -234,19 +253,22 @@ app.post("/move", (request, response) => {
       }
     }
 
-    if (foodMoves.length <= 1) {
+    // Chase self survival mode
+    if (foodMoves.length <= 1 && pathFound === false) {
       console.log("Entered chaseSelfMode");
       // snakes[0] is always me
       const snake = request.body.board.snakes[0].body;
       let index = 1;
-      let pathFound = false;
 
       while (pathFound === false) {
         chaseSelfMove = snake[snake.length - index];
         console.log(`chaseSelfMove: ${chaseSelfMove.x}, ${chaseSelfMove.y}`);
 
+        // Change move temporarily to an playable tile
         changeTile(playingBoard, chaseSelfMove);
         let moveOption = runEasyStar(mySnakeHead, chaseSelfMove);
+        // Change back to unplayable tile
+        changeTile(playingBoard, chaseSelfMove);
 
         if (Object.entries(moveOption).length === 0) {
           console.log("LOOP: Could not find path, trying next body part.");
@@ -257,8 +279,6 @@ app.post("/move", (request, response) => {
           pathFound = true;
           console.log(`Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`);
         }
-
-        changeTile(playingBoard, chaseSelfMove);
       }
     }
 
