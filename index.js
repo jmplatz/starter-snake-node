@@ -191,8 +191,12 @@ app.post("/move", (request, response) => {
         console.log("Entered futureMove check");
         // Change move to unplayable tile temporarily
         changeTile(playingBoard, moveOption);
-        let futureMove = runEasyStar(closestFood, nextClosestFood);
-        console.log("Returned with futureMove");
+        try {
+          let futureMove = runEasyStar(closestFood, nextClosestFood);
+          console.log("Returned with futureMove");
+        } catch (e) {
+          console.error();
+        }
 
         if (Object.entries(futureMove).length == 0) {
           console.log("LOOP: Could not find path from foodMove to futureFood");
