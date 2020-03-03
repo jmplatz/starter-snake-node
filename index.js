@@ -366,17 +366,17 @@ app.post("/move", (request, response) => {
   // TODO: Have it pick up down left right based on the coordinate itself, should always be one away from snake head
 
   // Returns move
-  console.log(`Move Selected: ${theMove.x}, ${theMove.y}`);
-  if (playingBoard[mySnakeHead.y - 1][mySnakeHead.x] == playingBoard[theMove.y][theMove.x]) {
+  console.log(`Move Selected: ${theMove.y}, ${theMove.x}`);
+  if (mySnakeHead.y - 1 == theMove.y) {
     data.move = "up";
     console.log("Chose Up");
-  } else if (playingBoard[mySnakeHead.y + 1][mySnakeHead.x] == playingBoard[theMove.y][theMove.x]) {
+  } else if (mySnakeHead.y + 1 == theMove.y) {
     data.move = "down";
     console.log("Chose Down");
-  } else if (playingBoard[mySnakeHead.y][mySnakeHead.x - 1] == playingBoard[theMove.y][theMove.x]) {
+  } else if (mySnakeHead.x - 1 == theMove.x) {
     data.move = "left";
     console.log("Chose Left");
-  } else if (playingBoard[mySnakeHead.y][mySnakeHead.x + 1] == playingBoard[theMove.y][theMove.x]) {
+  } else if (mySnakeHead.x + 1 == theMove.x) {
     data.move = "right";
     console.log("Chose Right");
   }
