@@ -219,12 +219,12 @@ app.post("/move", (request, response) => {
     // Food move loop
     while (pathFound === false && foodMoves.length > 1) {
       console.log("8. Entering food loop.");
-      // const indexOfClosest = calculateClosest(foodMoves);
-      // const closestFood = request.body.board.food[indexOfClosest];
+      const indexOfClosest = calculateClosest(foodMoves);
+      const closestFood = request.body.board.food[indexOfClosest];
 
       let moveOption = runEasyStar(mySnakeHead, closestFood);
 
-      // If move object returns empty, remove closest option
+      // If move object returns empty, remove that option froma array
       if (Object.entries(moveOption).length == 0) {
         console.log("LOOP: Could not find path to closest food. Trying next closest.");
         foodMoves.splice(indexOfClosest, 1);
@@ -259,10 +259,11 @@ app.post("/move", (request, response) => {
     }
 
     // Chase self survival mode
-    if (foodMoves.length <= 1 && pathFound === false) {
+    if (foodMoves.length == 1 || foodMoves.length == 0) {
       console.log("Entered chaseSelfMode");
       // snakes[0] is always me
       const snake = request.body.board.snakes[0].body;
+      pathFound = false;
       let index = 1;
 
       while (pathFound === false) {
@@ -275,7 +276,7 @@ app.post("/move", (request, response) => {
         // Change back to unplayable tile
         changeTile(playingBoard, chaseSelfMove);
 
-        if (Object.entries(moveOption).length === 0) {
+        if (Object.entries(moveOption).length == 0) {
           console.log("LOOP: Could not find path, trying next body part.");
           index++;
         } else {
