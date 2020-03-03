@@ -156,23 +156,23 @@ app.post("/move", (request, response) => {
     // if futureCheck, create temp array, filter to remove current closest, return second closest
     if (futureCheck) {
       console.log("futureCheck was true");
-      let currentClosest = foodArray.indexOf(Math.min(...foodArray));
+      let currentClosest = Math.min(...foodArray);
+      let nextClosest = Math.max(...foodArray);
 
-      let tempArray = foodArray.filter(values => {
-        return values != currentClosest;
-      });
+      for (let i = 0; i < foodArray.length; i++) {
+        if (foodArray[i] > currentClosest && foodArray[i] < nextClosest) nextClosest = foodArray[i];
+      }
 
-      const secondClosest = tempArray.indexOf(Math.min(...tempArray));
+      const indexOfNextClosest = foodArray.indexOf(nextClosest);
 
-      console.log(`10. Outputted the element at index (${secondClosest}) as next closest option.`);
-      return secondClosest;
+      return indexOfNextClosest;
 
       // else just return closest
     } else {
-      const index = foodArray.indexOf(Math.min(...foodArray));
+      const indexOfClosest = foodArray.indexOf(Math.min(...foodArray));
       console.log(`10. Outputted the element at index (${index}) as closest option.`);
 
-      return index;
+      return indexOfClosest;
     }
   }
 
