@@ -202,7 +202,7 @@ app.post("/move", (request, response) => {
     const closestFood = request.body.board.food[indexOfClosest];
 
     // For first 5 turns just go for food regularly
-    while (currentTurn < 5 && foodMoves.length > 0 && pathFound === false) {
+    while (currentTurn < 10 && foodMoves.length > 0 && pathFound === false) {
       let moveOption = runEasyStar(mySnakeHead, closestFood);
 
       if (Object.entries(moveOption).length == 0) {
@@ -259,7 +259,7 @@ app.post("/move", (request, response) => {
     }
 
     // Chase self survival mode
-    if (foodMoves.length == 1 || foodMoves.length == 0) {
+    if (currentTurn >= 10 && (foodMoves.length == 1 || foodMoves.length == 0)) {
       console.log("Entered chaseSelfMode");
       // snakes[0] is always me
       const snake = request.body.board.snakes[0].body;
