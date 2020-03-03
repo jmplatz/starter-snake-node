@@ -151,29 +151,34 @@ app.post("/move", (request, response) => {
   // Passed the array of food moves, returns the index of the shortest move
   function findClosestFood(foodArray, futureCheck = false) {
     console.log("9. Entered findClosestFood()");
-    if (foodArray.length === 0) return 0;
+    let index;
 
-    // if futureCheck, create temp array, filter to remove current closest, return second closest
+    if (foodArray.length === 0) {
+      index = 0;
+      console.log("findClosestFood returned 0");
+    }
+
+    // if futureCheck, return second closest food move
     if (futureCheck) {
       console.log("futureCheck was true");
       let currentClosest = Math.min(...foodArray);
       let nextClosest = Math.max(...foodArray);
 
       for (let i = 0; i < foodArray.length; i++) {
-        if (foodArray[i] > currentClosest && foodArray[i] < nextClosest) nextClosest = foodArray[i];
+        if (foodArray[i] > currentClosest && foodArray[i] < nextClosest) {
+          nextClosest = foodArray[i];
+        }
       }
 
-      const indexOfNextClosest = foodArray.indexOf(nextClosest);
-      console.log(`Outputted the element at index (${nextClosest}) as next closest option.`);
-      return indexOfNextClosest;
+      index = foodArray.indexOf(nextClosest);
+      console.log(`Outputted the element at index (${index}) as next closest option.`);
 
       // else just return closest
     } else {
-      const indexOfClosest = foodArray.indexOf(Math.min(...foodArray));
+      index = foodArray.indexOf(Math.min(...foodArray));
       console.log(`10. Outputted the element at index (${index}) as closest option.`);
-
-      return indexOfClosest;
     }
+    return index;
   }
 
   /* Utilizes 4 callback methods.
