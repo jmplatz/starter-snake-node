@@ -247,7 +247,7 @@ app.post("/move", (request, response) => {
         // Create copy of current array
         let foodMovesCopy = foodMoves;
 
-        while (pathFound === false && foodMovesCopy.length > 1) {
+        while (pathFound === false && foodMovesCopy.length > 0) {
           // If easyStar returns with move, continue to future check
           console.log("INNER LOOP: Entered futureMove check");
           console.log(`INNER LOOP: Current distances array: (${foodMovesCopy}), created copy`);
@@ -258,10 +258,13 @@ app.post("/move", (request, response) => {
           // Change move temporarily to an unplayable tile to make sure I'm not cutting myself off
           // changeTile(playingBoard, moveOption);
           // Check to see if there's a path from food to next available food
+          console.log(
+            `INNER LOOP: Running easyStar with closestFood: ${closestFood} and nextClosest: ${nextClosestFood}`
+          );
           let futureMove = runEasyStar(closestFood, nextClosestFood);
           // Change move back to playable tile
           // changeTile(playingBoard, moveOption);
-          console.log("INNER LOOP: Returned with futureMove");
+          console.log("INNER LOOP: Returned from futureMove");
 
           // If move object returns empty, remove next closest option from array
           if (Object.entries(futureMove).length == 0) {
