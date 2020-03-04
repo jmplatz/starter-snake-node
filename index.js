@@ -164,19 +164,18 @@ app.post("/move", (request, response) => {
       let nextClosest = Math.max(...foodArray);
 
       // If they happen to be the same, choose the second one
-      if (currentClosest == nextClosest) {
+      if (currentClosest === nextClosest) {
         index = foodArray.lastIndexOf(Math.max(...foodArray));
         // else find the second closest
       } else {
         for (let i = 0; i < foodArray.length; i++) {
-          if (foodArray[i] > currentClosest && foodArray[i] < nextClosest) {
+          if (foodArray[i] > currentClosest && foodArray[i] <= nextClosest) {
             nextClosest = foodArray[i];
           }
         }
         index = foodArray.indexOf(nextClosest);
       }
       console.log(`Outputted the element at index (${index}) as next closest option.`);
-
       // If in outer loop just return closest
     } else {
       index = foodArray.indexOf(Math.min(...foodArray));
@@ -233,7 +232,7 @@ app.post("/move", (request, response) => {
 
     // Then try and also anticipate future paths
     while (pathFound === false && foodMoves.length > 1) {
-      console.log("8. Entering food loop.");
+      console.log("8. Entering food decision loop.");
       const indexOfClosest = calculateClosest(foodMoves);
       const closestFood = request.body.board.food[indexOfClosest];
 
@@ -241,17 +240,17 @@ app.post("/move", (request, response) => {
 
       // If move object returns empty, remove that option from array
       if (Object.entries(moveOption).length == 0) {
-        console.log("LOOP: Could not find path to closest food. Trying next closest.");
+        console.log("OUTER LOOP: Could not find path to closest food. Trying next closest.");
         foodMoves.splice(indexOfClosest, 1);
-        console.log(`LOOP: Length of food array is now: (${foodMoves.length})`);
+        console.log(`OUTER LOOP: Length of food array is now: (${foodMoves.length})`);
       } else {
         // Create copy of current array
         let foodMovesCopy = foodMoves;
 
         while (pathFound === false && foodMovesCopy.length > 1) {
           // If easyStar returns with move, continue to future check
-          console.log("Entered futureMove check");
-          console.log(`7. Current distances array: (${foodMovesCopy})`);
+          console.log("INNER LOOP: Entered futureMove check");
+          console.log(`INNER LOOP: Current distances array: (${foodMovesCopy}), created copy`);
           // Getting coordinates of nextClosestFood
           const indexOfNextClosest = calculateClosest(foodMovesCopy, true);
           const nextClosestFood = request.body.board.food[indexOfNextClosest];
@@ -262,32 +261,33 @@ app.post("/move", (request, response) => {
           let futureMove = runEasyStar(closestFood, nextClosestFood);
           // Change move back to playable tile
           // changeTile(playingBoard, moveOption);
-          console.log("Returned with futureMove");
+          console.log("INNER LOOP: Returned with futureMove");
 
           // If move object returns empty, remove next closest option from array
           if (Object.entries(futureMove).length == 0) {
-            console.log("LOOP: Could not find path from foodMove to futureFood");
+            console.log("INNER LOOP: Could not find path from foodMove to futureFood");
             foodMovesCopy.splice(indexOfNextClosest, 1);
-            console.log(`LOOP: Length of food array is now: (${foodMovesCopy.length})`);
-            if (foodMovesCopy.length == 1) {
-              foodMoves.splice(indexOfClosest, 1);
-            }
+            console.log(`INNER LOOP: Length of food array is now: (${foodMovesCopy.length})`);
           } else {
-            console.log("Returned with move.");
+            console.log("INNER LOOP: Returned with viable move.");
             nextMove = moveOption;
             pathFound = true;
-            console.log(`Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`);
+            console.log(`INNER LOOP: Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`);
+          }
+
+          if (foodMovesCopy.length <= 1) {
+            console.log(
+              "INNER LOOP: No viable moves from closest to next closest, removing that option from foodMoves"
+            );
+            foodMoves.splice(indexOfClosest, 1);
           }
         }
       }
     }
 
     // Chase self survival mode
-    if (currentTurn >= 10 && (foodMoves.length == 1 || foodMoves.length == 0)) {
+    if (currentTurn >= 10 && foodMoves.length <= 1) {
       console.log("Entered chaseSelfMode");
-      // snakes[0] is always me
-      console.log(mySnakeBody.name);
-
       pathFound = false;
       let index = 1;
 
@@ -305,7 +305,7 @@ app.post("/move", (request, response) => {
           console.log("LOOP: Could not find path, trying next furthest body part.");
           index++;
         } else {
-          console.log("Returned with move.");
+          console.log("Returned with viable move.");
           nextMove = moveOption;
           pathFound = true;
           console.log(`Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`);
