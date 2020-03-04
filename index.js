@@ -247,7 +247,7 @@ app.post("/move", (request, response) => {
         // Create copy of current array
         let foodMovesCopy = foodMoves;
 
-        while (pathFound === false && foodMovesCopy.length > 0) {
+        while (pathFound === false && foodMovesCopy.length > 1) {
           // If easyStar returns with move, continue to future check
           console.log("INNER LOOP: Entered futureMove check");
           console.log(`INNER LOOP: Current distances array: (${foodMovesCopy}), created copy`);
@@ -278,7 +278,7 @@ app.post("/move", (request, response) => {
             console.log(`INNER LOOP: Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`);
           }
 
-          if (foodMovesCopy.length <= 1) {
+          if (foodMovesCopy.length == 1) {
             console.log(
               "INNER LOOP: No viable moves from closest to next closest, removing that option from foodMoves"
             );
