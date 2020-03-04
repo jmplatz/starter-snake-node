@@ -61,6 +61,11 @@ app.post("/move", (request, response) => {
     const mySnakeName = request.body.you.name;
     const myOpponentSnakes = request.body.board.snakes;
 
+    for (let i = 0; i < myOpponentSnakes.length; i++) {
+      if (myOpponentSnakes[i].name == mySnakeName) {
+      }
+    }
+
     const foodLocations = request.body.board.food;
     console.log("Creating My Snake");
     createMySnake(mySnakeBody, board);
@@ -192,6 +197,16 @@ app.post("/move", (request, response) => {
 
     const mySnakeHead = request.body.you.body[0];
     const currentTurn = request.body.turn;
+    const mySnakeName = request.body.you.name;
+    const theSnakes = request.body.board.snakes;
+    let mySnakeBody;
+
+    for (let i = 0; i < theSnakes.length; i++) {
+      if (theSnakes[i].name == mySnakeName) {
+        mySnakeBody = theSnakes[i].body;
+      }
+    }
+
     console.log("4. Intializing selectMove Function");
 
     const foodMoves = moveDistances(playingBoard);
@@ -271,13 +286,13 @@ app.post("/move", (request, response) => {
     if (currentTurn >= 10 && (foodMoves.length == 1 || foodMoves.length == 0)) {
       console.log("Entered chaseSelfMode");
       // snakes[0] is always me
-      console.log(request.body.board.snakes[0].name);
-      const snake = request.body.board.snakes[0].body;
+      console.log(mySnakeBody.name);
+
       pathFound = false;
       let index = 1;
 
       while (pathFound === false) {
-        chaseSelfMove = snake[snake.length - index];
+        chaseSelfMove = mySnakeBody[mySnakeBody.length - index];
         console.log(`chaseSelfMove: ${chaseSelfMove.x}, ${chaseSelfMove.y}`);
 
         // Change move temporarily to an playable tile
