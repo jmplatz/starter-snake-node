@@ -47,7 +47,7 @@ app.post("/move", (request, response) => {
   const mySnakeHead = request.body.you.body[0];
 
   // Draw 2D Array with obstacles
-  function createPlayingBoard(createMySnake, createOpponents, createSnakeHeads, dangerousFood) {
+  function createPlayingBoard(createMySnake, createOpponents, createSnakeHeads) {
     // createSnakeHeads
     const boardHeight = request.body.board.height;
     const boardWidth = request.body.board.width;
@@ -107,26 +107,26 @@ app.post("/move", (request, response) => {
     }
   }
 
-  // TODO: Need to implement function that prevents targetting food that kills me 1-2 turns later
-  function removeDangerousFood(foodLocations, height, width, board) {
-    for (const food of foodLocations) {
-      // if both food.x +/- 1 == 1, make y +/- 1 also == 1
-      if (food.x - 1 >= 0 && board[food.y][food.x - 1] === 1) {
-        if (food.x + 1 < width && board[food.y][food.x + 1] === 1) {
-          board[food.y][food.x] = 1;
-          console.log(`Made food at ${food.x}, ${food.y} unavailable`);
-        }
-      }
+  // // TODO: Need to implement function that prevents targetting food that kills me 1-2 turns later
+  // function removeDangerousFood(foodLocations, height, width, board) {
+  //   for (const food of foodLocations) {
+  //     // if both food.x +/- 1 == 1, make y +/- 1 also == 1
+  //     if (food.x - 1 >= 0 && board[food.y][food.x - 1] === 1) {
+  //       if (food.x + 1 < width && board[food.y][food.x + 1] === 1) {
+  //         board[food.y][food.x] = 1;
+  //         console.log(`Made food at ${food.x}, ${food.y} unavailable`);
+  //       }
+  //     }
 
-      // Same for food.x's
-      if (food.y - 1 >= 0 && board[food.y - 1][food.x] === 1) {
-        if (food.y + 1 < height && board[food.y + 1][food.x] === 1) {
-          board[food.y][food.x] = 1;
-          console.log(`Made food at ${food.x}, ${food.y} unavailable`);
-        }
-      }
-    }
-  }
+  //     // Same for food.x's
+  //     if (food.y - 1 >= 0 && board[food.y - 1][food.x] === 1) {
+  //       if (food.y + 1 < height && board[food.y + 1][food.x] === 1) {
+  //         board[food.y][food.x] = 1;
+  //         console.log(`Made food at ${food.x}, ${food.y} unavailable`);
+  //       }
+  //     }
+  //   }
+  // }
 
   // Creates an array of possible food moves based on distance away from snakehead
   function findFoodDistances(board) {
@@ -237,7 +237,7 @@ app.post("/move", (request, response) => {
         while (pathFound === false && foodMovesCopy.length > 1) {
           // If easyStar returns with move, continue to future check
           console.log("Entered futureMove check");
-
+          console.log(`7. Current distances array: (${foodMovesCopy})`);
           // Getting coordinates of nextClosestFood
           const indexOfNextClosest = calculateClosest(foodMovesCopy, true);
           const nextClosestFood = request.body.board.food[indexOfNextClosest];
@@ -352,14 +352,8 @@ app.post("/move", (request, response) => {
   console.log(`Turn ${request.body.turn}`);
 
   console.log("1. Creating Board");
-  const playingBoard = createPlayingBoard(
-    drawMySnake,
-    drawOpponents,
-    drawLargerSnakeHeads,
-    removeDangerousFood
-  );
+  const playingBoard = createPlayingBoard(drawMySnake, drawOpponents, drawLargerSnakeHeads);
   console.log("2. Board Created");
-  console.table(playingBoard);
 
   const easystar = new easystarjs.js();
   easystar.setGrid(playingBoard);
