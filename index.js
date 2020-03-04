@@ -138,9 +138,8 @@ app.post("/move", (request, response) => {
     for (let i = 0; i < foodLocations.length; i++) {
       let moveDistance =
         Math.abs(mySnakeHead.x - foodLocations[i].x) + Math.abs(mySnakeHead.y - foodLocations[i].y);
-      if (board[foodLocations[i].y][foodLocations[i].x] != 1) {
-        foodMovesArray.push(moveDistance);
-      }
+      // if (board[foodLocations[i].y][foodLocations[i].x] != 1) {}
+      foodMovesArray.push(moveDistance);
     }
     console.log(`6. Outputted array with (${foodMovesArray.length}) total moves`);
     return foodMovesArray;
@@ -153,27 +152,27 @@ app.post("/move", (request, response) => {
     console.log("9. Entered findClosestFood()");
     let index;
 
-    if (foodArray.length === 0) {
-      index = 0;
-      console.log("findClosestFood returned 0");
-    }
-
-    // if futureCheck, return second closest food move
+    // if futureCheck, return the second closest food move
     if (futureCheck) {
       console.log("futureCheck was true");
       let currentClosest = Math.min(...foodArray);
       let nextClosest = Math.max(...foodArray);
 
-      for (let i = 0; i < foodArray.length; i++) {
-        if (foodArray[i] > currentClosest && foodArray[i] < nextClosest) {
-          nextClosest = foodArray[i];
+      // If they happen to be the same, choose the second one
+      if (currentClosest == nextClosest) {
+        index = foodArray.lastIndexOf(Math.max(...foodArray));
+        // else find the second closest
+      } else {
+        for (let i = 0; i < foodArray.length; i++) {
+          if (foodArray[i] > currentClosest && foodArray[i] < nextClosest) {
+            nextClosest = foodArray[i];
+          }
         }
+        index = foodArray.indexOf(nextClosest);
       }
-
-      index = foodArray.indexOf(nextClosest);
       console.log(`Outputted the element at index (${index}) as next closest option.`);
 
-      // else just return closest
+      // If in outer loop just return closest
     } else {
       index = foodArray.indexOf(Math.min(...foodArray));
       console.log(`10. Outputted the element at index (${index}) as closest option.`);
@@ -255,6 +254,9 @@ app.post("/move", (request, response) => {
             console.log("LOOP: Could not find path from foodMove to futureFood");
             foodMovesCopy.splice(indexOfNextClosest, 1);
             console.log(`LOOP: Length of food array is now: (${foodMovesCopy.length})`);
+            if (foodMovesCopy.length == 1) {
+              foodMoves.splice(indexOfClosest, 1);
+            }
           } else {
             console.log("Returned with move.");
             nextMove = moveOption;
