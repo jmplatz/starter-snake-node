@@ -271,6 +271,7 @@ app.post("/move", (request, response) => {
     if (currentTurn >= 10 && (foodMoves.length == 1 || foodMoves.length == 0)) {
       console.log("Entered chaseSelfMode");
       // snakes[0] is always me
+      console.log(request.body.board.snakes[0].name);
       const snake = request.body.board.snakes[0].body;
       pathFound = false;
       let index = 1;
@@ -286,7 +287,7 @@ app.post("/move", (request, response) => {
         changeTile(playingBoard, chaseSelfMove);
 
         if (Object.entries(moveOption).length == 0) {
-          console.log("LOOP: Could not find path, trying next body part.");
+          console.log("LOOP: Could not find path, trying next furthest body part.");
           index++;
         } else {
           console.log("Returned with move.");
