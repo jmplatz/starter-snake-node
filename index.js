@@ -259,7 +259,7 @@ app.post("/move", (request, response) => {
           // changeTile(playingBoard, moveOption);
           // Check to see if there's a path from food to next available food
           console.log(
-            `INNER LOOP: Running easyStar with closestFood: ${closestFood} and nextClosest: ${nextClosestFood}`
+            `INNER LOOP: Running easyStar with closest x:${closestFood.x} y:${closestFood.y} and nextClosest: x:${nextClosestFood.x} y:${nextClosestFood.y}`
           );
           let futureMove = runEasyStar(closestFood, nextClosestFood);
           // Change move back to playable tile
@@ -353,7 +353,7 @@ app.post("/move", (request, response) => {
 
   function runEasyStar(startingPoint, destination) {
     let viableMove = {};
-
+    console.log("Entered easyStar");
     easystar.findPath(startingPoint.x, startingPoint.y, destination.x, destination.y, function(
       path
     ) {
