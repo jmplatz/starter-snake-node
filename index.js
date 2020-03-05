@@ -293,8 +293,8 @@ app.post("/move", (request, response) => {
         } else {
           let dead = willTheNextMoveKillMe(moveOption, playingBoard);
 
-          if (dead) {
-            console.log("I AM DEAD SNAKE");
+          if (jsonEqual(moveOption, mySnakeBody[mySnakeBody.length - 1])) {
+            console.log("Chasing my tail!");
           }
 
           nextMove = moveOption;
@@ -316,6 +316,10 @@ app.post("/move", (request, response) => {
   // Return boolean if next move is going to kill me
   function willTheNextMoveKillMe(moveOption, board) {
     return board[moveOption.y][moveOption.x] == 1;
+  }
+
+  function jsonEqual(a, b) {
+    return JSON.stringify(a) === JSON.stringify(b);
   }
 
   // Find an available tile
