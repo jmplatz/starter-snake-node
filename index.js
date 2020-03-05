@@ -291,25 +291,28 @@ app.post("/move", (request, response) => {
           console.log("LOOP: Could not find path, trying next furthest body part.");
           index++;
         } else {
-          let dead = willTheNextMoveKillMe(moveOption, playingBoard);
+          let snakeGonDie = willTheNextMoveKillMe(moveOption, playingBoard);
 
-          if (jsonEqual(moveOption, mySnakeBody[mySnakeBody.length - 1])) {
-            console.log("Chasing my tail!");
+          // if true, see if it's my tail and if it isn't move somewhere else
+          if (snakeGonDie) {
+            console.log("I AM DEAD SNAKE");
+            if (jsonEqual(moveOption, mySnakeBody[mySnakeBody.length - 1])) {
+              console.log("SIKE, just chasing my tail");
+              nextMove = moveOption;
+            } else {
+              console.log(`What do we say to the god of Death, not turn ${currentTurn}!`);
+              nextMove = stayingAlive(playingBoard);
+            }
+          } else {
+            nextMove = moveOption;
           }
-
-          nextMove = moveOption;
           pathFound = true;
           console.log(`Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`);
         }
       }
-
-      // If all else fails, find an available tile for next move. Default to left.
-      if (chaseSelfMove == mySnakeBody[0]) {
-        nextMove = stayingAlive(playingBoard);
-      }
     }
 
-    console.log("Exited loop and returned a move");
+    console.log("Exited loops and returned a move");
     return nextMove;
   }
 
@@ -324,7 +327,7 @@ app.post("/move", (request, response) => {
 
   // Find an available tile
   function stayingAlive(board) {
-    console.log("Ah, ha, ha, ha, stayin' alive, stayin' alive");
+    console.log("Ah, ha, ha, ha, stayin' alive, stayin' alive!");
     let panicMove = {};
     const mySnakeHead = request.body.you.body[0];
     const boardHeight = request.body.board.height;
