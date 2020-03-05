@@ -40,15 +40,16 @@ app.post("/start", (request, response) => {
 
 // Handle POST request to '/move'
 app.post("/move", (request, response) => {
+  // Default move
   const data = {
     move: "up"
   };
 
+  // Necessary until I place move into a function, currently "global"
   const mySnakeHead = request.body.you.body[0];
 
-  // Draw 2D Array with obstacles
+  // Draw the board, draw unplayable tiles
   function createPlayingBoard(createMySnake, createOpponents, createSnakeHeads) {
-    // createSnakeHeads
     const boardHeight = request.body.board.height;
     const boardWidth = request.body.board.width;
 
@@ -61,29 +62,24 @@ app.post("/move", (request, response) => {
     const mySnakeName = request.body.you.name;
     const myOpponentSnakes = request.body.board.snakes;
 
-    for (let i = 0; i < myOpponentSnakes.length; i++) {
-      if (myOpponentSnakes[i].name == mySnakeName) {
-      }
-    }
-
-    const foodLocations = request.body.board.food;
     console.log("Creating My Snake");
     createMySnake(mySnakeBody, board);
     console.log("Creating Opponent Snakes");
     createOpponents(myOpponentSnakes, board);
     console.log("Marking Larger Snakes");
     createSnakeHeads(myOpponentSnakes, mySnakeBody, mySnakeName, boardHeight, boardWidth, board);
-    // console.log("Removing Dangerous Food Options");
-    // dangerousFood(foodLocations, boardHeight, boardWidth, board);
+
     return board;
   }
 
+  // TODO: Test to see if this is necessary
   function drawMySnake(mySnakeBody, board) {
     mySnakeBody.forEach(element => {
       board[element.y][element.x] = 1;
     });
   }
 
+  // TODO: Rename to just draw snake if drawMySnake() isn't necessary
   function drawOpponents(opponentSnakeBodies, board) {
     opponentSnakeBodies.forEach(snakes => {
       snakes.body.forEach(element => {
@@ -92,10 +88,10 @@ app.post("/move", (request, response) => {
     });
   }
 
-  // If snake is larger than mine puts 1's around the head
+  // If other snake is >= mySnake puts 1's around it's head
   function drawLargerSnakeHeads(opponents, myBody, myName, height, width, board) {
     for (const snake of opponents) {
-      if (snake.body.length > myBody.length + 1 && snake.name != myName) {
+      if (snake.body.length >= myBody.length + 1 && snake.name != myName) {
         if (snake.body[0].y + 1 < height) {
           board[snake.body[0].y + 1][snake.body[0].x] = 1;
         }
@@ -112,28 +108,7 @@ app.post("/move", (request, response) => {
     }
   }
 
-  // // TODO: Need to implement function that prevents targetting food that kills me 1-2 turns later
-  // function removeDangerousFood(foodLocations, height, width, board) {
-  //   for (const food of foodLocations) {
-  //     // if both food.x +/- 1 == 1, make y +/- 1 also == 1
-  //     if (food.x - 1 >= 0 && board[food.y][food.x - 1] === 1) {
-  //       if (food.x + 1 < width && board[food.y][food.x + 1] === 1) {
-  //         board[food.y][food.x] = 1;
-  //         console.log(`Made food at ${food.x}, ${food.y} unavailable`);
-  //       }
-  //     }
-
-  //     // Same for food.x's
-  //     if (food.y - 1 >= 0 && board[food.y - 1][food.x] === 1) {
-  //       if (food.y + 1 < height && board[food.y + 1][food.x] === 1) {
-  //         board[food.y][food.x] = 1;
-  //         console.log(`Made food at ${food.x}, ${food.y} unavailable`);
-  //       }
-  //     }
-  //   }
-  // }
-
-  // Creates an array of possible food moves based on distance away from snakehead
+  // Creates an array of possible food options based on move distance away from snakehead
   function findFoodDistances(board) {
     console.log("5. Entered findFoodDistances()");
     const foodMovesArray = [];
@@ -143,16 +118,14 @@ app.post("/move", (request, response) => {
     for (let i = 0; i < foodLocations.length; i++) {
       let moveDistance =
         Math.abs(mySnakeHead.x - foodLocations[i].x) + Math.abs(mySnakeHead.y - foodLocations[i].y);
-      // if (board[foodLocations[i].y][foodLocations[i].x] != 1) {}
       foodMovesArray.push(moveDistance);
     }
     console.log(`6. Outputted array with (${foodMovesArray.length}) total moves`);
+
     return foodMovesArray;
   }
 
-  /* FIXME: Need to deal with edge case of two moves with equal distances, might be removing incorrect one from array? */
-
-  // Passed the array of food moves, returns the index of the shortest move
+  // Passed the array of food moves, returns the index of the closet or next closest move
   function findClosestFood(foodArray, futureCheck = false) {
     console.log("9. Entered findClosestFood()");
     let index;
@@ -184,11 +157,13 @@ app.post("/move", (request, response) => {
     return index;
   }
 
-  /* Utilizes 4 callback methods.
-  1. Creates an array of food move distances
-  2. Finds the closest food available and runs Easystar.js
-  3. If it cannot find a path it removes that option from the array and tries the next closest.
-  4. If no food paths can be found it enters a "Survival Mode," checking adjacent tiles for available moves
+  /*
+  1. Create an array of food move distances
+  2. Find the closest food available and run Easystar.js
+  3. If Easystar cannot find a path, remove that option from the array and try the next closest.
+  4. If Easystar finds a viable move, check to see if there is a path from that food to another piece of food
+  5. If no future moves can be found, enter a temporary "Survival Mode" 
+  6. First, chase tail. Second, chase a reachable part of the body. Last, just move to an available tile.
   */
   function selectMove(calculateClosest, moveDistances, runEasyStar, changeTile) {
     let nextMove = {};
@@ -198,18 +173,17 @@ app.post("/move", (request, response) => {
     const currentTurn = request.body.turn;
     const mySnakeName = request.body.you.name;
     const theSnakes = request.body.board.snakes;
-    let mySnakeBody;
 
+    // Used for chase tail mode, finds index of my snake
+    let mySnakeBody;
     for (let i = 0; i < theSnakes.length; i++) {
       if (theSnakes[i].name == mySnakeName) {
         mySnakeBody = theSnakes[i].body;
       }
     }
 
-    console.log("4. Intializing selectMove Function");
-
+    // With parallel array to keep track of the indexes of food objects
     const foodMoves = moveDistances(playingBoard);
-    // I will be removing elements from food array, parallel array to keep track of indexes
     const foodMovesIndexes = [];
 
     for (let i = 0; i < foodMoves.length; i++) {
@@ -220,6 +194,7 @@ app.post("/move", (request, response) => {
 
     // For first X turns just go for food regularly
     while (currentTurn < 10 && foodMoves.length > 0 && pathFound === false) {
+      console.log("8. Entering food decision loop.");
       const indexOfClosest = calculateClosest(foodMoves);
       const closestFood = request.body.board.food[foodMovesIndexes[indexOfClosest]];
       let moveOption = runEasyStar(mySnakeHead, closestFood);
@@ -231,14 +206,13 @@ app.post("/move", (request, response) => {
         foodMovesIndexes.splice(indexOfClosest, 1);
         console.log(`LOOP: Length of food array is now: (${foodMoves.length})`);
       } else {
-        console.log("Returned with move.");
         nextMove = moveOption;
         pathFound = true;
         console.log(`Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`);
       }
     }
 
-    // Then try and also anticipate future paths
+    // First, choose the closest food and see if there is a viable path
     while (pathFound === false && foodMoves.length > 1) {
       console.log("8. Entering food decision loop.");
       const indexOfClosest = calculateClosest(foodMoves);
@@ -253,27 +227,23 @@ app.post("/move", (request, response) => {
         foodMovesIndexes.splice(indexOfClosest, 1);
         console.log(`OUTER LOOP: Length of food array is now: (${foodMoves.length})`);
       } else {
-        // Create copy of current array
+        // If there is a path to the closest food, see if there is a move to future food
+        // First create copies of food arrays
         let foodMovesCopy = foodMoves;
         let foodMovesIndexesCopy = foodMovesIndexes;
 
         while (pathFound === false && foodMovesCopy.length > 1) {
-          // If easyStar returns with move, continue to future check
           console.log("INNER LOOP: Entered futureMove check");
           console.log(`INNER LOOP: Current distances array: (${foodMovesCopy}), created copy`);
-          // Getting coordinates of nextClosestFood
+          // Getting coordinates of next closest food, futureCheck == true
           const indexOfNextClosest = calculateClosest(foodMovesCopy, true);
           const nextClosestFood = request.body.board.food[foodMovesIndexesCopy[indexOfNextClosest]];
 
-          // Change move temporarily to an unplayable tile to make sure I'm not cutting myself off
-          // changeTile(playingBoard, moveOption);
-          // Check to see if there's a path from food to next available food
+          // Check to see if there's a path from closest food to next closest food
           console.log(
             `INNER LOOP: Running easyStar with closest x:${closestFood.x} y:${closestFood.y} and nextClosest: x:${nextClosestFood.x} y:${nextClosestFood.y}`
           );
           let futureMove = runEasyStar(closestFood, nextClosestFood);
-          // Change move back to playable tile
-          // changeTile(playingBoard, moveOption);
           console.log("INNER LOOP: Returned from futureMove");
 
           // If move object returns empty, remove next closest option from array
@@ -283,12 +253,12 @@ app.post("/move", (request, response) => {
             foodMovesIndexesCopy.splice(indexOfNextClosest, 1);
             console.log(`INNER LOOP: Length of food array is now: (${foodMovesCopy.length})`);
           } else {
-            console.log("INNER LOOP: Returned with viable move.");
             nextMove = moveOption;
             pathFound = true;
             console.log(`INNER LOOP: Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`);
           }
 
+          // If no future moves are available, remove original food move and reenter outer loop
           if (foodMovesCopy.length == 1) {
             console.log(
               "INNER LOOP: No viable moves from closest to next closest, removing that option from foodMoves"
@@ -300,13 +270,14 @@ app.post("/move", (request, response) => {
       }
     }
 
-    // Chase self survival mode
+    // Chase self survival mode. Chase tail, if that isn't pathable, move up body until one is.
     if (currentTurn >= 10 && foodMoves.length <= 1) {
       console.log("Entered chaseSelfMode");
       pathFound = false;
       let index = 1;
+      let chaseSelfMove;
 
-      while (pathFound === false) {
+      while (pathFound === false && chaseSelfMove != mySnakeBody[0]) {
         chaseSelfMove = mySnakeBody[mySnakeBody.length - index];
         console.log(`chaseSelfMove: ${chaseSelfMove.x}, ${chaseSelfMove.y}`);
 
@@ -320,11 +291,15 @@ app.post("/move", (request, response) => {
           console.log("LOOP: Could not find path, trying next furthest body part.");
           index++;
         } else {
-          console.log("Returned with viable move.");
           nextMove = moveOption;
           pathFound = true;
           console.log(`Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`);
         }
+      }
+
+      // If all else fails, find an available tile for next move. Default to left.
+      if (chaseSelfMove == mySnakeBody[0]) {
+        nextMove = stayingAlive(playingBoard);
       }
     }
 
@@ -332,26 +307,32 @@ app.post("/move", (request, response) => {
     return nextMove;
   }
 
-  // function checkAvailableSpace(playingBoard, closestFoodMove) {
-  //   // Determine size of grid to check
-  //   // if head is above food, row starts at food and vice versa
-  //   // if head to the right of food, column starts at food and vice versa
-  //   // Start from bottom-left corner of matrix
-  //   // Store count of 0's in the matrix
-  //   //
-  //   // while col < gridWidth
-  //   // while (mat[row][col] > 0)
-  //   // if zero is not found in current column,
-  //   // we are done
-  //   // if (--row < 0)
-  //   // 	return count;
-  //   // add 0s present in current column to result
-  //   // 	count += (row + 1);
-  //   // 	// move right to next column
-  //   // 	col++;
-  //   // return count;
-  // }
+  // Find an available tile
+  function stayingAlive(board) {
+    console.log("Ah, ha, ha, ha, stayin' alive, stayin' alive");
+    let panicMove = {};
+    const mySnakeHead = request.body.you.body[0];
+    const boardHeight = request.body.board.height;
+    const boardWidth = request.body.board.width;
 
+    // Try to always move left first, if not cycle through other move directions
+    if (board[mySnakeHead.y][mySnakeHead.x - 1] != 1 && mySnakeHead.x - 1 >= 0) {
+      panicMove = { x: mySnakeHead.x - 1, y: mySnakeHead.y };
+      // Up
+    } else if (board[mySnakeHead.y - 1][mySnakeHead.x] != 1 && mySnakeHead.y - 1 >= 0) {
+      panicMove = { x: mySnakeHead.x, y: mySnakeHead.y - 1 };
+      // Right
+    } else if (board[mySnakeHead.y][mySnakeHead.x + 1] != 1 && mySnakeHead.x + 1 < boardWidth) {
+      panicMove = { x: mySnakeHead.x + 1, y: mySnakeHead.y };
+      // Down
+    } else if (board[mySnakeHead.y + 1][mySnakeHead.x] != 1 && mySnakeHead.y + 1 < boardHeight) {
+      panicMove = { x: mySnakeHead.x, y: mySnakeHead.y + 1 };
+    }
+
+    return panicMove;
+  }
+
+  // Dynamically swap tiles playable/unplayable
   function changeTile(board, coordinates) {
     console.log("Entered changeTile");
     if (board[coordinates.y][coordinates.x] === 1) {
@@ -363,6 +344,7 @@ app.post("/move", (request, response) => {
     }
   }
 
+  // Runs the easyStar algorithm, returns a viable next move or an empty object
   function runEasyStar(startingPoint, destination) {
     let viableMove = {};
     console.log("Entered easyStar");
@@ -383,24 +365,20 @@ app.post("/move", (request, response) => {
 
   // TODO: Place these into an initialize function?
   console.log(`Turn ${request.body.turn}`);
-
-  console.log("1. Creating Board");
   const playingBoard = createPlayingBoard(drawMySnake, drawOpponents, drawLargerSnakeHeads);
-  console.log("2. Board Created");
+  console.log("1. Board Created");
 
   const easystar = new easystarjs.js();
   easystar.setGrid(playingBoard);
   easystar.setAcceptableTiles([0]);
   easystar.enableSync(); // required to work
+  console.log("2. Initialized easyStar");
 
   // TODO: Place this into a move function
   console.log("3. Selecting move");
   const theMove = selectMove(findClosestFood, findFoodDistances, runEasyStar, changeTile);
-  //checkAdjacentTiles
 
-  // TODO: Have it pick up down left right based on the coordinate itself, should always be one away from snake head
-
-  // Returns move
+  // Returns move to response
   console.log(`Move Selected: ${theMove.y}, ${theMove.x}`);
   if (mySnakeHead.y - 1 == theMove.y) {
     data.move = "up";
