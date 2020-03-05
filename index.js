@@ -291,6 +291,12 @@ app.post("/move", (request, response) => {
           console.log("LOOP: Could not find path, trying next furthest body part.");
           index++;
         } else {
+          let dead = willTheNextMoveKillMe(moveOption, playingBoard);
+
+          if (dead) {
+            console.log("I AM DEAD SNAKE");
+          }
+
           nextMove = moveOption;
           pathFound = true;
           console.log(`Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`);
@@ -305,6 +311,11 @@ app.post("/move", (request, response) => {
 
     console.log("Exited loop and returned a move");
     return nextMove;
+  }
+
+  // Return boolean if next move is going to kill me
+  function willTheNextMoveKillMe(moveOption, board) {
+    return board[moveOption.y][moveOption.x] == 1;
   }
 
   // Find an available tile
