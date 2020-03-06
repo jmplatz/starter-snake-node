@@ -123,6 +123,21 @@ app.post("/move", (request, response) => {
     return distancesArray;
   }
 
+  function findSnakeHeadDistances(mySnakeHead, theSnakes) {
+    console.log("5. Entered findDistances()");
+    const distancesArray = [];
+
+    for (let i = 0; i < theSnakes.length; i++) {
+      let moveDistance =
+        Math.abs(mySnakeHead.x - theSnakes[i].body[0].x) +
+        Math.abs(mySnakeHead.y - theSnakes[i].body[0].y);
+      distancesArray.push(moveDistance);
+    }
+    console.log(`6. Outputted array with (${distancesArray.length}) total moves`);
+
+    return distancesArray;
+  }
+
   // Passed the array of food moves, returns the index of the closet or next closest move
   function findClosestFood(foodArray, futureCheck = false) {
     console.log("9. Entered findClosestFood()");
@@ -315,7 +330,8 @@ app.post("/move", (request, response) => {
     // Test for future function to deal with undefined moves
     if (typeof nextMove.x === "undefined") {
       console.log("Move was undefined");
-
+      const closestSnake = findSnakeHeadDistances(mySnakeHead, theSnakes);
+      console.log(closestSnake);
       // selectMove(calculateClosest, moveDistances, runEasyStar, changeTile);
     }
 
