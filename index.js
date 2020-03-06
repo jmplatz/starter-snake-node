@@ -72,7 +72,7 @@ app.post("/move", (request, response) => {
     return board;
   }
 
-  // TODO: Test to see if this is necessary
+  // TODO: Test to see if this is redundant
   function drawMySnake(mySnakeBody, board) {
     mySnakeBody.forEach(element => {
       board[element.y][element.x] = 1;
@@ -291,10 +291,10 @@ app.post("/move", (request, response) => {
           console.log("LOOP: Could not find path, trying next furthest body part.");
           index++;
         } else {
-          let snakeGonDie = willTheNextMoveKillMe(moveOption, playingBoard);
+          let snakeGonnaDie = willTheNextMoveKillMe(moveOption, playingBoard);
 
           // if true, see if it's my tail and if it isn't move somewhere else
-          if (snakeGonDie) {
+          if (snakeGonnaDie) {
             console.log("I AM DEAD SNAKE");
             if (jsonEqual(moveOption, mySnakeBody[mySnakeBody.length - 1])) {
               console.log("SIKE, just chasing my tail");
@@ -313,6 +313,12 @@ app.post("/move", (request, response) => {
     }
 
     console.log("Exited loops and returned a move");
+
+    // Test for future function to deal with undefined moves
+    if (typeof nextMove.x === "undefined") {
+      console.log("Move was undefined");
+    }
+
     return nextMove;
   }
 
@@ -321,6 +327,7 @@ app.post("/move", (request, response) => {
     return board[moveOption.y][moveOption.x] == 1;
   }
 
+  // Compares contents of object to see if they are the same
   function jsonEqual(a, b) {
     return JSON.stringify(a) === JSON.stringify(b);
   }
