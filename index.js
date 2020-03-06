@@ -333,8 +333,8 @@ app.post("/move", (request, response) => {
 
       revertLargerSnakeHead(closestSnakes, theSnakes, playingBoard);
 
-      console.log("Rerunning selectMove");
-      selectMove(calculateClosest, moveDistances, runEasyStar, changeTile);
+      // console.log("Rerunning selectMove");
+      // selectMove(calculateClosest, moveDistances, runEasyStar, changeTile);
     }
 
     console.log("Exited loops and returned a move");
