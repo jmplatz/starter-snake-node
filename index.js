@@ -124,7 +124,7 @@ app.post("/move", (request, response) => {
   }
 
   function findSnakeHeadDistances(mySnakeHead, theSnakes) {
-    console.log("5. Entered findDistances()");
+    console.log("5. Entered findSnakeHeadDistances()");
     const distancesArray = [];
 
     for (let i = 0; i < theSnakes.length; i++) {
@@ -329,6 +329,7 @@ app.post("/move", (request, response) => {
     if (typeof nextMove.x === "undefined") {
       console.log("Move was undefined, trying to remove larger snake heads");
       const closestSnakes = findSnakeHeadDistances(mySnakeHead, theSnakes);
+      console.log(`Returned with array: ${closestSnakes}`);
 
       revertLargerSnakeHead(closestSnakes, theSnakes, playingBoard);
 
