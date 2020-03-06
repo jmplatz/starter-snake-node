@@ -108,21 +108,19 @@ app.post("/move", (request, response) => {
     }
   }
 
-  // Creates an array of possible food options based on move distance away from snakehead
-  function findFoodDistances(board) {
-    console.log("5. Entered findFoodDistances()");
-    const foodMovesArray = [];
-    const mySnakeHead = request.body.you.body[0];
-    const foodLocations = request.body.board.food;
+  // Creates an array of possible targets based on move distance away from snakehead
+  function findDistances(mySnakeHead, targets) {
+    console.log("5. Entered findDistances()");
+    const distancesArray = [];
 
-    for (let i = 0; i < foodLocations.length; i++) {
+    for (let i = 0; i < targets.length; i++) {
       let moveDistance =
-        Math.abs(mySnakeHead.x - foodLocations[i].x) + Math.abs(mySnakeHead.y - foodLocations[i].y);
-      foodMovesArray.push(moveDistance);
+        Math.abs(mySnakeHead.x - targets[i].x) + Math.abs(mySnakeHead.y - targets[i].y);
+      distancesArray.push(moveDistance);
     }
-    console.log(`6. Outputted array with (${foodMovesArray.length}) total moves`);
+    console.log(`6. Outputted array with (${distancesArray.length}) total moves`);
 
-    return foodMovesArray;
+    return distancesArray;
   }
 
   // Passed the array of food moves, returns the index of the closet or next closest move
@@ -168,11 +166,11 @@ app.post("/move", (request, response) => {
   function selectMove(calculateClosest, moveDistances, runEasyStar, changeTile) {
     let nextMove = {};
     let pathFound = false;
-
-    const mySnakeHead = request.body.you.body[0];
     const currentTurn = request.body.turn;
+    const mySnakeHead = request.body.you.body[0];
     const mySnakeName = request.body.you.name;
     const theSnakes = request.body.board.snakes;
+    const foodLocations = request.body.board.food;
 
     // Used for chase tail mode, finds index of my snake
     let mySnakeBody;
@@ -183,7 +181,7 @@ app.post("/move", (request, response) => {
     }
 
     // With parallel array to keep track of the indexes of food objects
-    const foodMoves = moveDistances(playingBoard);
+    const foodMoves = moveDistances(mySnakeHead, foodLocations);
     const foodMovesIndexes = [];
 
     for (let i = 0; i < foodMoves.length; i++) {
@@ -317,6 +315,8 @@ app.post("/move", (request, response) => {
     // Test for future function to deal with undefined moves
     if (typeof nextMove.x === "undefined") {
       console.log("Move was undefined");
+
+      // selectMove(calculateClosest, moveDistances, runEasyStar, changeTile);
     }
 
     return nextMove;
@@ -401,7 +401,7 @@ app.post("/move", (request, response) => {
 
   // TODO: Place this into a move function
   console.log("3. Selecting move");
-  const theMove = selectMove(findClosestFood, findFoodDistances, runEasyStar, changeTile);
+  const theMove = selectMove(findClosestFood, findDistances, runEasyStar, changeTile);
 
   // Returns move to response
   console.log(`Move Selected: ${theMove.y}, ${theMove.x}`);
