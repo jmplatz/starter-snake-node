@@ -325,16 +325,18 @@ app.post("/move", (request, response) => {
       }
     }
 
-    console.log("Exited loops and returned a move");
-
     // Test for future function to deal with undefined moves
     if (typeof nextMove.x === "undefined") {
-      console.log("Move was undefined");
-      const closestSnake = findSnakeHeadDistances(mySnakeHead, theSnakes);
-      console.log(closestSnake);
-      // selectMove(calculateClosest, moveDistances, runEasyStar, changeTile);
+      console.log("Move was undefined, trying to remove larger snake heads");
+      const closestSnakes = findSnakeHeadDistances(mySnakeHead, theSnakes);
+
+      revertLargerSnakeHead(closestSnakes, theSnakes, playingBoard);
+
+      console.log("Rerunning selectMove");
+      selectMove(calculateClosest, moveDistances, runEasyStar, changeTile);
     }
 
+    console.log("Exited loops and returned a move");
     return nextMove;
   }
 
@@ -385,6 +387,30 @@ app.post("/move", (request, response) => {
     }
   }
 
+  // If move returns undefined, temporarily return closest snake heads to normal
+  function revertLargerSnakeHead(snakeHeadArray, theSnakes, board) {
+    console.log("Reverting closest snake head temporarily");
+    const boardHeight = request.body.board.height;
+    const boardWidth = request.body.board.width;
+
+    for (let i = 0; i < snakeHeadArray.length; i++) {
+      if (snakeHeadArray[i] == 2) {
+        if (theSnakes[i].body[0].y + 1 < boardHeight) {
+          board[theSnakes[i].body[0].y + 1][theSnakes[i].body[0].x] = 0;
+        }
+        if (theSnakes[i].body[0].y - 1 >= 0) {
+          board[theSnakes[i].body[0].y - 1][theSnakes[i].body[0].x] = 0;
+        }
+        if (theSnakes[i].body[0].x + 1 < boardWidth) {
+          board[theSnakes[i].body[0].y][theSnakes[i].body[0].x + 1] = 0;
+        }
+        if (theSnakes[i].body[0].x - 1 >= 0) {
+          board[theSnakes[i].body[0].y][theSnakes[i].body[0].x - 1] = 0;
+        }
+      }
+    }
+  }
+
   // Runs the easyStar algorithm, returns a viable next move or an empty object
   function runEasyStar(startingPoint, destination) {
     let viableMove = {};
@@ -420,7 +446,7 @@ app.post("/move", (request, response) => {
   const theMove = selectMove(findClosestFood, findDistances, runEasyStar, changeTile);
 
   // Returns move to response
-  console.log(`Move Selected: ${theMove.y}, ${theMove.x}`);
+  console.log(`Move Selected: ${theMove.x}, ${theMove.y}`);
   if (mySnakeHead.y - 1 == theMove.y) {
     data.move = "up";
     console.log("Chose Up");
