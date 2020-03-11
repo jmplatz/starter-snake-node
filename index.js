@@ -132,6 +132,7 @@ app.post("/move", (request, response) => {
         Math.abs(mySnakeHead.x - theSnakes[i].body[0].x) +
         Math.abs(mySnakeHead.y - theSnakes[i].body[0].y);
       distancesArray.push(moveDistance);
+      console.log(`Snake head at: ${theSnakes[i].body[0].x}, ${theSnakes[i].body[0].y}`);
     }
     console.log(`6. Outputted array with (${distancesArray.length}) total moves`);
 
@@ -178,7 +179,7 @@ app.post("/move", (request, response) => {
   5. If no future moves can be found, enter a temporary "Survival Mode" 
   6. First, chase tail. Second, chase a reachable part of the body. Last, just move to an available tile.
   */
-  function selectMove(calculateClosest, moveDistances, runEasyStar, changeTile) {
+  function selectMove(calculateClosest, moveDistances, runEasyStar) {
     let nextMove = {};
     let pathFound = false;
     const currentTurn = request.body.turn;
@@ -195,7 +196,7 @@ app.post("/move", (request, response) => {
       }
     }
 
-    // With parallel array to keep track of the indexes of food objects
+    // Create parallel arrays: 1.Food Distances 2.Indexes of food objects
     const foodMoves = moveDistances(mySnakeHead, foodLocations);
     const foodMovesIndexes = [];
 
@@ -206,10 +207,11 @@ app.post("/move", (request, response) => {
     console.log(`7. Returned back to selectMove with distances array: (${foodMoves})`);
 
     // For first X turns just go for food regularly
-    while (currentTurn < 10 && foodMoves.length > 0 && pathFound === false) {
+    while (currentTurn < 5 && foodMoves.length > 0 && pathFound === false) {
       console.log("8. Entering food decision loop.");
       const indexOfClosest = calculateClosest(foodMoves);
       const closestFood = request.body.board.food[foodMovesIndexes[indexOfClosest]];
+
       let moveOption = runEasyStar(mySnakeHead, closestFood);
 
       // If move object returns empty, remove that option from food array
@@ -256,7 +258,12 @@ app.post("/move", (request, response) => {
           console.log(
             `INNER LOOP: Running easyStar with closest x:${closestFood.x} y:${closestFood.y} and nextClosest: x:${nextClosestFood.x} y:${nextClosestFood.y}`
           );
+
+          // Change move temporarily to an playable tile to make sure it doesn't cut us off
+          changeTile(playingBoard, moveOption);
           let futureMove = runEasyStar(closestFood, nextClosestFood);
+          // Change back
+          changeTile(playingBoard, moveOption);
           console.log("INNER LOOP: Returned from futureMove");
 
           // If move object returns empty, remove next closest option from array
@@ -284,45 +291,9 @@ app.post("/move", (request, response) => {
     }
 
     // Chase self survival mode. Chase tail, if that isn't pathable, move up body until one is.
-    if (currentTurn >= 10 && foodMoves.length <= 1) {
-      console.log("Entered chaseSelfMode");
-      pathFound = false;
-      let index = 1;
-      let chaseSelfMove;
-
-      while (pathFound === false && chaseSelfMove != mySnakeBody[0]) {
-        chaseSelfMove = mySnakeBody[mySnakeBody.length - index];
-        console.log(`chaseSelfMove: ${chaseSelfMove.x}, ${chaseSelfMove.y}`);
-
-        // Change move temporarily to an playable tile
-        changeTile(playingBoard, chaseSelfMove);
-        let moveOption = runEasyStar(mySnakeHead, chaseSelfMove);
-        // Change back to unplayable tile
-        changeTile(playingBoard, chaseSelfMove);
-
-        if (Object.entries(moveOption).length == 0) {
-          console.log("LOOP: Could not find path, trying next furthest body part.");
-          index++;
-        } else {
-          let snakeGonnaDie = willTheNextMoveKillMe(moveOption, playingBoard);
-
-          // if true, see if it's my tail and if it isn't move somewhere else
-          if (snakeGonnaDie) {
-            console.log("I AM DEAD SNAKE");
-            if (jsonEqual(moveOption, mySnakeBody[mySnakeBody.length - 1])) {
-              console.log("SIKE, just chasing my tail");
-              nextMove = moveOption;
-            } else {
-              console.log(`What do we say to the god of Death, not turn ${currentTurn}!`);
-              nextMove = stayingAlive(playingBoard);
-            }
-          } else {
-            nextMove = moveOption;
-          }
-          pathFound = true;
-          console.log(`Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`);
-        }
-      }
+    if (currentTurn >= 5 && foodMoves.length <= 1) {
+      nextMove = chaseSelfMode(mySnakeBody, playingBoard, currentTurn);
+      console.log(nextMove);
     }
 
     // Test for future function to deal with undefined moves
@@ -332,12 +303,64 @@ app.post("/move", (request, response) => {
       console.log(`Returned with array: ${closestSnakes}`);
 
       revertLargerSnakeHead(closestSnakes, theSnakes, playingBoard);
-
-      // console.log("Rerunning selectMove");
-      // selectMove(calculateClosest, moveDistances, runEasyStar, changeTile);
+      console.table(playingBoard);
+      console.log("Rerunning chaseSelfMode");
+      nextMove = chaseSelfMode(mySnakeBody, playingBoard, currentTurn);
     }
 
     console.log("Exited loops and returned a move");
+    return nextMove;
+  }
+
+  // Chase self survival mode. Chase tail, if that isn't pathable, move up body until one is.
+  // Eventually call changeTile, runEasyStar and willTheNextMoveKillMe as callbacks
+  function chaseSelfMode(mySnakeBody, board, currentTurn) {
+    console.log("Entered chaseSelfMode ()");
+    let moveOption;
+    let nextMove;
+    let pathFound = false;
+    let index = 1;
+    let chaseSelfMove;
+
+    while (pathFound === false && chaseSelfMove != mySnakeBody[0]) {
+      chaseSelfMove = mySnakeBody[mySnakeBody.length - index];
+      console.log(`chaseSelfMove: ${chaseSelfMove.x}, ${chaseSelfMove.y}`);
+
+      // Change move temporarily to an playable tile
+      changeTile(board, chaseSelfMove);
+      moveOption = runEasyStar(mySnakeHead, chaseSelfMove);
+      // Change back to unplayable tile
+      changeTile(board, chaseSelfMove);
+
+      // If move object is empty, move up one body part
+      if (Object.entries(moveOption).length == 0) {
+        console.log("LOOP: Could not find path, trying next furthest body part.");
+        index++;
+      } else {
+        // If it returns with move, check to see if it might kill me
+        console.log("Checking if next move will kill me");
+        let mightDie = willTheNextMoveKillMe(moveOption, board);
+        console.log(`Will the next move kill me...survey says: ${mightDie}!`);
+
+        // if true, see if it's my tail and if it isn't move somewhere else
+        if (mightDie) {
+          console.log("I AM DEAD SNAKE?");
+          let thisIsMyTail = jsonEqual(moveOption, mySnakeBody[mySnakeBody.length - 1]);
+
+          if (!thisIsMyTail) {
+            //TODO: first try an index++??
+            console.log(`What do we say to the god of Death, not turn ${currentTurn}!`);
+            nextMove = stayingAlive(board);
+          } else {
+            nextMove = moveOption;
+          }
+        } else {
+          nextMove = moveOption;
+        }
+        pathFound = true;
+        console.log(`Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`);
+      }
+    }
     return nextMove;
   }
 
@@ -346,7 +369,7 @@ app.post("/move", (request, response) => {
     return board[moveOption.y][moveOption.x] == 1;
   }
 
-  // Compares contents of object to see if they are the same
+  // Returns boolean if objects have same properties
   function jsonEqual(a, b) {
     return JSON.stringify(a) === JSON.stringify(b);
   }
@@ -394,18 +417,35 @@ app.post("/move", (request, response) => {
     const boardHeight = request.body.board.height;
     const boardWidth = request.body.board.width;
 
+    // TODO: If food is one tile away, leave that unplayable
     for (let i = 0; i < snakeHeadArray.length; i++) {
       if (snakeHeadArray[i] == 2) {
-        if (theSnakes[i].body[0].y + 1 < boardHeight) {
+        // down
+        if (
+          theSnakes[i].body[0].y + 1 < boardHeight &&
+          theSnakes[i].body[0].y + 1 != theSnakes[i].body[1].y
+        ) {
           board[theSnakes[i].body[0].y + 1][theSnakes[i].body[0].x] = 0;
         }
-        if (theSnakes[i].body[0].y - 1 >= 0) {
+        // up
+        if (
+          theSnakes[i].body[0].y - 1 >= 0 &&
+          theSnakes[i].body[0].y - 1 != theSnakes[i].body[1].y
+        ) {
           board[theSnakes[i].body[0].y - 1][theSnakes[i].body[0].x] = 0;
         }
-        if (theSnakes[i].body[0].x + 1 < boardWidth) {
+        // right
+        if (
+          theSnakes[i].body[0].x + 1 < boardWidth &&
+          theSnakes[i].body[0].x + 1 != theSnakes[i].body[1].x
+        ) {
           board[theSnakes[i].body[0].y][theSnakes[i].body[0].x + 1] = 0;
         }
-        if (theSnakes[i].body[0].x - 1 >= 0) {
+        // left
+        if (
+          theSnakes[i].body[0].x - 1 >= 0 &&
+          theSnakes[i].body[0].x - 1 != theSnakes[i].body[1].x
+        ) {
           board[theSnakes[i].body[0].y][theSnakes[i].body[0].x - 1] = 0;
         }
       }
