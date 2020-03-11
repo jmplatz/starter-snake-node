@@ -272,10 +272,23 @@ app.post("/move", (request, response) => {
             foodMovesCopy.splice(indexOfNextClosest, 1);
             foodMovesIndexesCopy.splice(indexOfNextClosest, 1);
             console.log(`INNER LOOP: Length of food array is now: (${foodMovesCopy.length})`);
+            // TODO: Add snakeEchoLocation to futureMove checks
           } else {
-            nextMove = moveOption;
-            pathFound = true;
-            console.log(`INNER LOOP: Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`);
+            console.log("Move available, checking available space.");
+            let availableSpace = snakeEchoLocation(moveOption, playingBoard);
+            console.log(availableSpace);
+
+            // if area has less space then length remove that option and continue loop
+            if (availableSpace < mySnakeBody.length) {
+              foodMovesCopy.splice(indexOfNextClosest, 1);
+              foodMovesIndexesCopy.splice(indexOfNextClosest, 1);
+            } else {
+              nextMove = moveOption;
+              pathFound = true;
+              console.log(
+                `INNER LOOP: Path found, returning nextMove: ${nextMove.x}, ${nextMove.y}`
+              );
+            }
           }
 
           // If no future moves are available, remove original food move and reenter outer loop
@@ -341,13 +354,17 @@ app.post("/move", (request, response) => {
         console.log("Checking if next move will kill me");
         let mightDie = willTheNextMoveKillMe(moveOption, board);
         console.log(`Will the next move kill me...survey says: ${mightDie}!`);
-
         // if true, see if it's my tail and if it isn't move somewhere else
         if (mightDie) {
           console.log("I AM DEAD SNAKE?");
           let thisIsMyTail = jsonEqual(moveOption, mySnakeBody[mySnakeBody.length - 1]);
 
           if (!thisIsMyTail) {
+            // TODO: Add logic for calculating acceptable space
+            let spaceAvailable = snakeEchoLocation(moveOption, board);
+            console.log("Space test activated, result: " + spaceAvailable);
+            // if (spaceAvailable < ) {}
+
             //TODO: first try an index++??
             console.log(`What do we say to the god of Death, not turn ${currentTurn}!`);
             nextMove = stayingAlive(board);
@@ -362,6 +379,54 @@ app.post("/move", (request, response) => {
       }
     }
     return nextMove;
+  }
+
+  // Given a possible next move, determines if there is enough space for my snake
+  function snakeEchoLocation(moveOption, board) {
+    console.log("Entered snakeEchoLocation");
+    const boardHeight = request.body.board.height;
+    const boardWidth = request.body.board.width;
+
+    // Creates copy of board, keeps track of what tiles get visited
+    let visited = Array(boardHeight)
+      .fill()
+      .map(() => Array(boardWidth).fill(false));
+
+    let availableSpace = calcAvailableSpace(board, visited, moveOption.y, moveOption.x);
+
+    console.log(`Returned with: ${availableSpace} available space`);
+    return availableSpace;
+  }
+
+  // Given a move coordinate, recursively checks area and returns count of available space
+  function calcAvailableSpace(board, visited, moveOptionY, moveOptionX) {
+    if (
+      !isValid(moveOptionY, moveOptionX, board) ||
+      visited[moveOptionY][moveOptionX] != false ||
+      board[moveOptionY][moveOptionX] != 0
+    ) {
+      return 0;
+    }
+
+    visited[moveOptionY][moveOptionX] = true;
+    let left = calcAvailableSpace(board, visited, moveOptionY, moveOptionX - 1);
+    let up = calcAvailableSpace(board, visited, moveOptionY - 1, moveOptionX);
+    let right = calcAvailableSpace(board, visited, moveOptionY, moveOptionX + 1);
+    let down = calcAvailableSpace(board, visited, moveOptionY + 1, moveOptionX);
+
+    let result = left + up + right + down + 1;
+
+    return result;
+  }
+
+  // Returns boolean if in bounds X / Y coordinate
+  function isValid(moveOptionY, moveOptionX) {
+    const boardHeight = request.body.board.height;
+    const boardWidth = request.body.board.width;
+
+    return (
+      moveOptionY < boardHeight && moveOptionY >= 0 && moveOptionX < boardWidth && moveOptionX >= 0
+    );
   }
 
   // Return boolean if next move is going to kill me
